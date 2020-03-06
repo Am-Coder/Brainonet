@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Write Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- <script src="https://kit.fontawesome.com/2ad6e7a9ae.js" crossorigin="anonymous"></script> -->
+<!--    {% load staticfiles %}-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+
+        body{
+            /*background-color: rgb(233, 230, 230);*/
+            /*text-align: center;*/
+        }
+
+        /* .contentContainer{
+            border:2px solid green;
+        } */
+        #contentarea{
+            width:100%;
+            height:300px;
+            border:2px solid bisque;
+            margin:0 auto;
+            box-shadow: 0px 0px 20px 20px white;
+        }
+
+
+        #toolbarContainer{
+            /*position: sticky;*/
+            /*top: 0;*/
+            height: 10px;
+        }
+    </style>
+</head>
+<body style="font-family: Arial">
+<div class="row">
+    <div id="wyswyg" class="col-sm-6">
+
+            <div class="input-group-sm">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" >Title</span>
+                    <input type="text" placeholder="Title">
+                </div>
+            </div>
+            <br>
+            <div class="input-group-sm">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" >Description</span>
+                    <input type="text" placeholder="Descr..">
+                </div>
+            </div>
+            <br>
+            <div class="input-group-sm">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" >Image</span>
+                    <input type="file" placeholder="Image">
+                </div>
+            </div>
+            <br>
+            <div class="input-group-sm">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" >References</span>
+                    <input type="text" placeholder="Reference">
+                </div>
+            </div>
+            <br>
+            <div id="toolbarContainer">
+                <div class = "container">
+                    <div class="btn-group btn-group-sm">
+
+                        <button type="button" class="btn btn-light btn-bo" onclick="execCmd('bold');"><i class="fas fa-bold"></i></button>
+                        <button type="button" class="btn btn-light btn-it" onclick="execCmd('italic');"><i class="fas fa-italic"></i></button>
+                        <button type="button" class="btn btn-light btn-un" onclick="execCmd('underline');"><i class="fas fa-underline"></i></button>
+                        <button type="button" class="btn btn-light" onclick="execCmd('fontSize','6');"><i class="fas fa-header"></i></button>
+
+                        <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown"><i class="fas fa-text-height"></i></button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontSize','1')">Small</a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontSize','3')"><h5>Medium</h5></a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontSize','5')"><h3>Large</h3></a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontSize','7')"><h1>Huge</h1></a>
+                                </div>
+                        </div>
+
+                        <div class="btn-group btn-font">
+                                <button type="button" class="btn btn-light dropdown-toggle btn-font-val " data-toggle="dropdown">Arial</i></button>
+                                <div class="dropdown-menu dropdown-font">
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontName', 'Calibri');">Calibri</a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontName', 'Arial');">Arial</a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontName', 'Serif');">Serif</a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('fontName', 'Segoe-UI');">Segoe UI</a>
+                                </div>
+                        </div>
+
+                        <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown"><i class="fas fa-align-justify"></i></button>
+                                <div class="dropdown-menu ">
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('justifyCenter');"><i class="fas fa-align-center"></i></a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('justifyLeft');"><i class="fas fa-align-left"></i></a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('justifyRight');"><i class="fas fa-align-right"></i></a>
+                                    <a class="dropdown-item" href="#!" onclick="execCmd('justifyFull');"><i class="fas fa-align-justify"></i></a>
+                                </div>
+                        </div>
+
+                        <button type="button" class="btn btn-light" onclick="execCmd('insertOrderedList');"><i class="fas fa-list-ol"></i></button>
+                        <button type="button" class="btn btn-light" onclick="execCmd('insertUnorderedList');"><i class="fas fa-list-ul"></i></button>
+                        <button type="button" class="btn btn-light" onclick="execCmd('indent');"><i class="fas fa-indent"></i></button>
+                        <button type="button" class="btn btn-light" onclick="execCmd('outdent');"><i class="fas fa-outdent"></i></button>
+                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#myModalattachment"><i class="fas fa-paperclip"></i></button>
+                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#myModallink"><i class="fas fa-link"></i></button>
+                        <button type="button" class="btn btn-light btn-str" onclick="execCmd('strikeThrough');"><i class="fas fa-strikethrough"></i></button>
+                        <button type="button" class="btn btn-light" onclick="execCmd('formatblock','blockquote');"><i class="fas fa-quote-right"></i></button>
+                        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#myModalPublish"> Publish </button>
+
+                    </div>
+                    <br>
+                    <br>
+
+                </div>
+
+            </div>
+            <br>
+
+            <!-- Content Area -->
+            <!-- <div class="contentContainer embed-responsive embed-responsive-4by3" > -->
+                <iframe class="embed-responsive-item" name="contentArea" id="contentarea" src="Content.html" style="overflow: hidden; ">
+                </iframe>
+            <!-- </div> -->
+
+
+            <!-- Bootstrap4 Modal for links -->
+            <div class = "modal fade" id="myModallink">
+                <div class = "modal-dialog">
+                    <div class = "modal-content">
+
+                        <div class = "modal-header">
+                            <h4 class="modal-title">Insert Link </h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class = "modal-body">
+                            <div class = "input-group mb-3">
+                                <div class="input-group-prepend"><span class="input-group-text">Text for URL</span></div>
+                                <input type = "text" class="form-control text-link" required>
+                            </div>
+                            <div class = "input-group mb-3">
+                                    <div class="input-group-prepend"><span class="input-group-text">URL</span></div>
+                                    <input type="text" class="form-control url-link" required>
+                            </div>
+                        </div>
+
+                        <div class = "modal-footer">
+                            <button class="btn btn-primary" onclick="insertingLink()"> Done </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Bootstrap4 Modal for attachments -->
+            <div class = "modal fade" id="myModalattachment">
+                <div class = "modal-dialog">
+                    <div class = "modal-content">
+
+                        <div class = "modal-header">
+                            <h4 class="modal-title">Insert Attachment </h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class = "modal-body">
+                            <div class = "input-group mb-3">
+
+                                <div class="input-group-prepend"><span class="input-group-text">URL</span></div>
+
+                                <input type="text" class="form-control attachment-link">
+                            </div>
+                        </div>
+
+                        <div class = "modal-footer">
+                            <button class="btn btn-primary" onclick="insertingAttachments()"> Done </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bootstrap4 Modal for publish -->
+            <div class = "modal fade" id="myModalPublish">
+                    <div class = "modal-dialog">
+                        <div class = "modal-content">
+
+                            <div class = "modal-header">
+                                <h4 class="modal-title">Finalising.. </h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+
+                            <div class = "modal-body">
+                                <div class = "input-group mb-3">
+                                    <div class="input-group-prepend"><span class="input-group-text">Title</span></div>
+                                    <input type = "text" class="form-control blog-title" placeholder="Title" required>
+                                </div>
+                                <div class = "input-group mb-3">
+                                    <div class="input-group-prepend"><span class="input-group-text">A catchy image</span></div>
+                                    <input type="text" class="form-control blog-image" placeholder="URL" required>
+                                </div>
+                                <div class = "input-group mb-3">
+                                    <div class="input-group-prepend"><span class="input-group-text">Genre</span></div>
+                                    <select class="form-control blog-genre" required>
+                                        <option value="scifi">Sci-Fi</option>
+                                        <option value="management">Management</option>
+                                        <option value="research">Research</option>
+                                        <option value="art">Art</option>
+                                        <option value="others">Others</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class = "modal-footer">
+                                <button class="btn btn-primary uploadBlog" > Done </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+    </div>
+
+    <div id="displayBlogg" class="col-sm-6">
+
+        <div class="row">
+                <div class="col-sm-2">
+                  <div class="thumbnail">
+                    <a href="#" target="_blank">
+                      <img src="#" alt="{{ image.image_short_des }}" style="width:100%">
+                    </a>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                      <div class="caption">
+                        <p>{{ image.image_short_des }}</p>
+                      </div>
+
+
+                      <a href="#"> <span class="glyphicon glyphicon-trash"></span> </a>
+                          <a href="#"> <span class="glyphicon glyphicon-star-empty"></span> </a>
+                          <a href="#"> <span class="glyphicon glyphicon-star-empty" style="color: gold"></span> </a>
+
+                </div>
+        </div>
+
+    </div>
+</div>
+
+    <script>
+
+
+// -----------------------------------Functionalities of Toolbar---------------------------------
+        
+        //Set design mode on for editor 
+        contentArea.document.designMode = "on";
+        $('#contentarea').focus();
+
+        //for changing state of font family
+        var prevstate = 'Arial';
+
+
+        //Callback function for checking status of current text        
+        setInterval(statusCallback,500);
+
+        //Setting Bold, Italic , Underline
+        function statusCallback(){
+            //Bold Status
+            var state = contentArea.document.queryCommandState("bold");
+            switch(state){
+                case true:
+                $('.btn-bo').removeClass('btn-light').addClass('btn-secondary');
+                break;
+                case false:
+                $('.btn-bo').removeClass('btn-secondary').addClass('btn-light');
+                break;
+                
+            }
+
+            //Itailic Status
+            state = contentArea.document.queryCommandState("italic");
+            switch(state){
+                case true:
+                $('.btn-it').removeClass('btn-light').addClass('btn-secondary');
+                break;
+                case false:
+                $('.btn-it').removeClass('btn-secondary').addClass('btn-light');
+                break;
+                
+            }
+
+            //Underline Status
+            state = contentArea.document.queryCommandState("underline");
+            switch(state){
+                case true:
+                $('.btn-un').removeClass('btn-light').addClass('btn-secondary');
+                break;
+                case false:
+                $('.btn-un').removeClass('btn-secondary').addClass('btn-light');
+                break;
+                
+            }
+
+
+            //StrikeThrough Status
+            state = contentArea.document.queryCommandState("strikeThrough");
+            switch(state){
+                case true:
+                $('.btn-str').removeClass('btn-light').addClass('btn-secondary');
+                break;
+                case false:
+                $('.btn-str').removeClass('btn-secondary').addClass('btn-light');
+                break;
+                
+            }
+
+            //For Fontfamily check
+            state = contentArea.document.queryCommandValue("fontname");
+            switch(state){
+                
+                case null:
+                $('.btn-font-val').html(prevstate);
+                break;
+
+                default:
+                $('.btn-font-val').html(state);
+                prevstate = state;
+
+            }   
+
+        }
+
+
+        function execCmd(command,value){
+            if(value == null)
+                contentArea.document.execCommand(command,false,null);
+            else{
+                console.log(command,value);
+                contentArea.document.execCommand(command,false,value);
+
+            }
+        }
+        
+        function insertingLink(){
+            var text = $(".text-link").val();
+            var link = $(".url-link").val();
+            console.log(text,link);
+            insertInHTML(text,link);
+            $('#myModallink').modal('hide');
+        }
+
+        function insertingAttachments(){
+            var link = $(".attachment-link").val();
+            contentArea.document.execCommand("insertImage",false,link);
+            $('#myModalattachment').modal('hide');
+        }
+
+        //Function for Inserting Link with a given name
+        function insertInHTML(text,link) {
+            var id = "rand" + Math.random();
+            var doc = contentArea.document ? contentArea.document : contentArea.contentWindow.document;
+            
+            //if no text then link and text are same
+            if(text.length == 0)
+                text = link;
+
+            var anc = "<a href='" + link + "' id=" + id + ">"+text+"</a><span>&nbsp</span>";
+            if(document.all) {
+            var range = doc.selection.createRange();
+            range.pasteHTML(anc);
+            range.collapse(false);
+            range.select();
+            } else {
+            doc.execCommand("insertHTML", false, anc);
+            }
+            return doc.getElementById(id);
+        };
+
+
+    </script>
+<!--    {% load staticfiles %}-->
+<!--    <script src="js/layout/jquery.ajax-publishblog.js"></script>-->
+
+</body>
+</html>
+
+

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+</head>
+<style>
+body{
+    background-color: whitesmoke;
+}
+.center_box{
+    background-color: white;
+    margin:  150px auto;
+    box-shadow: 10px 20px 20px gray;
+    width: 50%;
+}
+
+</style>
+<body>
+<div class="center_box " >
+
+    <div id="mobileFormContainer">
+        <form method="post" id="mobileForm">
+<!--            {% csrf_token %}-->
+            {{ mobileform.as_p}}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <div id="otpFormContainer" style="display: none">
+        <form method="post" id="otpForm">
+<!--            {% csrf_token %}-->
+            {{ otpform.as_p}}
+            <div class="btn-group-sm">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button class="btn btn-primary" id="resendOTP">Resend OTP</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="staffHomeContainer" style="display: none">
+        <form method="get" id="staffHomeForm" action="{% url 'personal:staff_home' %}">
+            {% csrf_token %}
+
+        </form>
+    </div>
+    <span id="msg"></span>
+</div>
+</body>
+<script>
+
+$(document).ready(() => {
+    $("#mobileForm").on("submit", (event) =>{
+        console.log($("#id_number").val());
+        event.preventDefault();
+
+		$.ajax({
+			type:"POST",
+			cache:"false",
+            contentType : "application/json",//type of data being send to server
+			url:"{% url 'account:get_otp' %}",
+            data : JSON.stringify({number: $("#id_number").val()}),
+            // dataType : "json",//result expected from server
+            //                 //with json return type we can return java objects
+            //                 //With text we can return String from java conroller
+			timeout:100000,
+			success:function(data){
+			                    console.log(data);
+
+                if( data['response'] === 'success' ){
+                    $("#otpFormContainer").show();
+                    $("#mobileFormContainer").hide();
+                    $("#msg").text("Check Your Mobile for OTP");
+			    }
+                else {
+                    $("#msg").text(data['error_message']);
+
+
+                }
+			},
+			error: function(e){
+			    $("#msg").text("Some problem occured, Please retry");
+				console.log(e);
+			},
+
+		});
+    });
+
+    $("#otpForm").submit((event) => {
+
+        event.preventDefault();
+
+		$.ajax({
+
+			type:"POST",
+			cache:"false",
+			url:"{% url 'account:auth_otp' %}",
+			timeout:100000,
+            contentType : "application/json",//type of data being send to server
+            data : JSON.stringify({mobile_number: $("#id_number").val(), otp: $("#id_otp").val()}),
+
+			success:function(data){
+                console.log(data);
+                if(data["response"] === "success") {
+                    console.log(data['token'].trim());
+                    $.cookie('Authorization', "Token ".concat(data['token'].trim()));
+                    // $.get({
+                    //     url: "{% url 'personal:staff_home' %}",
+                    //     headers:{"Authorization" : "Token ".concat(data['token'].trim())}
+                    // });
+
+                    // let req = new XMLHttpRequest();
+                    // req.open('GET',"{% url 'personal:staff_home' %}");
+                    // req.setRequestHeader("Authorization", "Token ".concat(data['token'].trim()));
+                    // let formdata = document.getElementById("#");
+                    // req.send();
+                    $("#staffHomeForm").submit();
+
+                } else{
+                    $("#msg").text(data["error_message"]);
+                }
+
+
+			},
+			error: function(e){
+				console.log(e);
+			},
+
+		});
+    });
+
+    $("#resendOTP").click(() => {
+        $("#otpFormContainer").hide();
+        $("#mobileFormContainer").show();
+    })
+});
+
+</script>
+
+</html>
