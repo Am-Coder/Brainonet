@@ -4,7 +4,7 @@ import json
 from communities.models import Communities
 from django.shortcuts import Http404
 from groupchat.models import Message
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from groupchat.api.serializers import MessageSerializer
 PAGE_SIZE = 10
 SUCCESS = 'success'
+ERROR = 'error'
 
 
 def index(request):
@@ -27,7 +28,7 @@ def room(request, room_name):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated))
+@permission_classes((IsAuthenticated,))
 def getchat(request, room_name, page_num):
     data = {}
 
@@ -38,4 +39,8 @@ def getchat(request, room_name, page_num):
         data['message'] = MessageSerializer(paginator.page(page_num).object_list, many=True).data
         return Response(data=data)
     except Communities.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND, data={"HH": "JJ"})
+    except EmptyPage:
+        data['response'] = ERROR
+        data['error_message'] = "Page Index out Of Bound"
+        return Response(status=status.HTTP_404_NOT_FOUND, data=data)

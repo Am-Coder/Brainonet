@@ -5,23 +5,16 @@ from groupchat.models import Message
 from account.models import Token
 from communities.models import Communities
 from django.shortcuts import Http404
+from channels.db import database_sync_to_async
 
 
-class ChatConsumer(WebsocketConsumer):
+class ChatConsumer(AsyncWebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        # token = self.scope['url_route']['kwargs']['token']
-        # if token:
-        #     async_to_sync(message_save_utility)(
-        #         token,
-        #         self.room_name,
-        #         msg
-        #     )
         print("XXXXX")
         # print(self.scope)
         # token_key = self.scope['headers'][b'sec-websocket-protocol'].decode()
         # print(self.scope['headers'][-1][1].decode())
-        token_key = self.scope['headers'][-1][1].decode()
         self.room_group_name = 'chat_%s' % self.room_name
 
         # Join room group
@@ -42,14 +35,14 @@ class ChatConsumer(WebsocketConsumer):
 
     # Receive message from WebSocket
     def receive(self, text_data):
-        print(self.scope)
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         print("WebSocketRecieve = " + message)
+        print(self.scope)
         # Send message to room group
         token = self.scope['url_route']['kwargs']['token']
         if token:
-            message_save_utility(
+            self.message_save_utility(
                 token,
                 self.scope['url_route']['kwargs']['room_name'],
                 message
@@ -72,16 +65,16 @@ class ChatConsumer(WebsocketConsumer):
             'message': message
         }))
 
+    # @database_sync_to_async
+    def message_save_utility(self, token, communityname, content):
+        try:
+            user = Token.objects.get(key=token).user
+            community = Communities.objects.get(name=communityname)
+            message = Message(user=user, content=content, community=community)
+            message.save()
 
-def message_save_utility(token, communityname, content):
-    try:
-        user = Token.objects.get(key=token).user
-        community = Communities.objects.get(name=communityname)
-        message = Message(user=user, content=content, community=community)
-        message.save()
-
-    # These conditions need to be prechecked
-    except Token.DoesNotExist:
-        raise Http404(" Authentication Failed ")
-    except Communities.DoesNotExist:
-        raise Http404(" Community Does Not Exist ")
+        # These conditions need to be prechecked
+        except Token.DoesNotExist:
+            raise Http404(" Authentication Failed ")
+        except Communities.DoesNotExist:
+            raise Http404(" Community Does Not Exist ")
