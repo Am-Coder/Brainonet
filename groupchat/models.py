@@ -14,10 +14,6 @@ class Message(models.Model):
     content = models.CharField(max_length=500, null=False)
     time = models.DateTimeField(verbose_name='date time', auto_now_add=True)
 
-    # @property
-    # def community_name(self):
-    #     return self.community.name
-
 
 class TokenAuthMiddleware:
     """

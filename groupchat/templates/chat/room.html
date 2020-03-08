@@ -16,7 +16,7 @@
     document.cookie = 'X-Authorization= 1212';
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
-        '/ws/groupchat/' + roomName + '/7be168f536aedf3caf6a82136e2321498a6bea77/');
+        '/ws/groupchat/' + roomName + '/');
 
     chatSocket.onmessage = function(e) {
         let data = JSON.parse(e.data);
@@ -26,6 +26,14 @@
 
     chatSocket.onclose = function(e) {
         console.error('Chat socket closed unexpectedly');
+    };
+
+    chatSocket.onopen = function(e) {
+        console.log(e);
+        chatSocket.send(JSON.stringify({
+            'auth' : true,
+            'token' : '7be168f536aedf3caf6a82136e2321498a6bea77'
+        }))
     };
 
     document.querySelector('#chat-message-input').focus();
@@ -39,7 +47,8 @@
         let messageInputDom = document.querySelector('#chat-message-input');
         let message = messageInputDom.value;
         chatSocket.send(JSON.stringify({
-            'message': message
+            'message': message,
+            'auth' : false
         }));
 
         messageInputDom.value = '';

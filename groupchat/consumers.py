@@ -9,63 +9,65 @@ from channels.db import database_sync_to_async
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
-    def connect(self):
+    async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        print("XXXXX")
-        # print(self.scope)
-        # token_key = self.scope['headers'][b'sec-websocket-protocol'].decode()
-        # print(self.scope['headers'][-1][1].decode())
+        # print("XXXXX")
         self.room_group_name = 'chat_%s' % self.room_name
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-        # self.base_send({"type": "websocket.accept", "subprotocol": token_key})
-        self.accept()
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         # Leave room group
         print("disconnect")
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
 
     # Receive message from WebSocket
-    def receive(self, text_data):
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        print("WebSocketRecieve = " + message)
-        print(self.scope)
-        # Send message to room group
-        token = self.scope['url_route']['kwargs']['token']
-        if token:
-            self.message_save_utility(
-                token,
-                self.scope['url_route']['kwargs']['room_name'],
-                message
-            )
+        # print(self.scope)
+        # message = text_data_json['message']
+        auth = text_data_json['auth']
+        if auth:
+            # print("Authenticating")
+            token = text_data_json['token']
+            await self.validate_token(token)
+        else:
+            if self.scope['user']:
+                # print("WebSocketRecieve = " + text_data_json['message'])
+                await self.message_save_utility(
+                    self.scope['token'],
+                    self.scope['url_route']['kwargs']['room_name'],
+                    text_data_json['message']
+                )
 
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message
-            }
-        )
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'chat_message',
+                        'message': text_data_json['message']
+                    }
+                )
+            else:
+                await self.close()
 
     # Handler to Receive message from room group
-    def chat_message(self, event):
+    async def chat_message(self, event):
         message = event['message']
-        print("Recieved = "+message)
+        # print("Recieved = "+message)
         # Send message to WebSocket
-        self.send(text_data=json.dumps({
+        await self.send(text_data=json.dumps({
             'message': message
         }))
 
-    # @database_sync_to_async
+    @database_sync_to_async
     def message_save_utility(self, token, communityname, content):
         try:
             user = Token.objects.get(key=token).user
@@ -78,3 +80,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             raise Http404(" Authentication Failed ")
         except Communities.DoesNotExist:
             raise Http404(" Community Does Not Exist ")
+
+    @database_sync_to_async
+    def validate_token(self, token):
+        try:
+            token = Token.objects.get(key=token)
+            # print("Token Verification Done")
+            self.scope['user'] = token.user
+            self.scope['token'] = token
+        except Token.DoesNotExist:
+            # print("Verification Failed")
+            self.scope['user'] = None
+
+
