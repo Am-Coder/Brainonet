@@ -3,7 +3,7 @@ from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 import json
 from groupchat.models import Message
 from account.models import Token
-from communities.models import Communities
+from communities.models import Communities, CommunitySubscribers
 from django.shortcuts import Http404
 from channels.db import database_sync_to_async
 
@@ -23,7 +23,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave room group
-        print("disconnect")
+        # print("disconnect")
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -72,6 +72,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             user = Token.objects.get(key=token).user
             community = Communities.objects.get(name=communityname)
+            CommunitySubscribers.objects.get(user=user, community=community)
             message = Message(user=user, content=content, community=community)
             message.save()
 
@@ -80,6 +81,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             raise Http404(" Authentication Failed ")
         except Communities.DoesNotExist:
             raise Http404(" Community Does Not Exist ")
+        except CommunitySubscribers.DoesNotExist:
+            raise Http404(" You have not subscribed to this community ")
 
     @database_sync_to_async
     def validate_token(self, token):
