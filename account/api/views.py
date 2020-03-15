@@ -24,8 +24,11 @@ class OTPGenerator(APIView):
         secretKey = pyotp.random_base32()
         totp = pyotp.TOTP(secretKey, interval=1000000)
         otp = totp.now()
+        print(otp)
+        print(num)
         resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', otp)
         resp = json.loads(resp)
+        print(resp)
         if resp['status'] == "success":
             data['response'] = resp['status']
             data['message'] = resp['message']

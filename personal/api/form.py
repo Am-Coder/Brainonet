@@ -4,7 +4,7 @@ from communities.models import Communities
 from django.forms import modelformset_factory
 from dal import autocomplete
 from account.models import Account
-
+from django import forms
 # from django_select2.forms import ModelSelect2MultipleWidget
 
 
@@ -48,6 +48,14 @@ class UserForm(forms.ModelForm):
 
             # 'first_name': autocomplete.Select2(url="personal:users_autocomplete")
         }
+
+    def save(self, commit=True):
+
+        super().save(commit)
+
+
+class ImageSearchForm(forms.Form):
+    image = forms.ImageField()
 
 
 ReferencesModelFormset = modelformset_factory(

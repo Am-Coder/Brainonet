@@ -16,7 +16,13 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
+from utilities.imsearch import colordescriptor, searcher, createdataset
 from rest_framework.response import Response
+import cv2
+import logging
+import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
@@ -53,7 +59,7 @@ def staffhome(request):
 
 
 class BlogHomeView(generic.ListView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     model = Blog
     template_name = "blogdisplay.html"
     context_object_name = "blogCollection"
@@ -139,7 +145,6 @@ def stafflogin(request):
     return render(request, 'stafflogin.html', context)
 
 
-# @require_POST
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def uploadblog(request):
@@ -153,7 +158,6 @@ def uploadblog(request):
     return HttpResponse("Some Error Occured")
 
 
-# @require_POST
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def uploadreferences(request):
@@ -164,7 +168,6 @@ def uploadreferences(request):
     return HttpResponse("Reference Already Exists")
 
 
-# @require_POST
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def uploadcommunity(request):
@@ -184,10 +187,53 @@ def stafflogout(request):
     return redirect(reverse("personal:staff_login"))
 
 
+@api_view(['GET'])
+@permission_classes([])
+def fakenews_home(request):
+    context = {}
+    context['image_form'] = form.ImageSearchForm
+    return render(request, 'fakenews_imsearch.html', context)
+
+
 def get_token_from_cookie(request):
     token = request.COOKIES.get("Authorization")
-    # print(token)
     if token:
         token = token.replace("Token%20", "")
-    # print(token)
     return token
+
+
+@api_view(['POST'])
+@permission_classes([])
+def fakenews_image_search(request):
+    context = {}
+    image_form = form.ImageSearchForm(request.POST, request.FILES)
+    if image_form.is_valid():
+        logger.info("Fake News Form Valid")
+        context = {}
+        logger.info(request.FILES.get('image'))
+        image = get_opencv_img_from_buffer(request.FILES.get('image'))
+        cd = colordescriptor.ColorDescriptor((8, 12, 3))
+        features = cd.describe(image)
+        results = searcher.Searcher().search(features, 3)
+        context['results'] = results
+    else:
+        logger.warning("Fake News Form Invalid")
+
+    context['image_form'] = form.ImageSearchForm
+    return render(request, 'fakenews_imsearch.html', context)
+
+
+@api_view(['GET'])
+@permission_classes([])
+def fakenews_image_dataset(request):
+    context = {}
+    logger.info("Starting dataset creation ...")
+    createdataset.create()
+    context['done'] = 'done'
+    return Response(context)
+
+
+def get_opencv_img_from_buffer(buffer, flags=-1):
+    bytes_as_np_array = np.frombuffer(buffer.read(), dtype=np.uint8)
+    return cv2.imdecode(bytes_as_np_array, flags)
+

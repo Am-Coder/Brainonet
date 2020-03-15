@@ -3,7 +3,8 @@ from .views import *
 
 app_name = "personal"
 
-urlpatterns =[
+urlpatterns = [
+
     re_path(r"^$", stafflogin, name="staff_login"),
     re_path(r"^staffhome/$", staffhome, name="staff_home"),
     re_path(r"^staffhome/addblog/$", uploadblog, name="add_blog"),
@@ -17,5 +18,8 @@ urlpatterns =[
     re_path(r"^home/users_autocomplete/$", UsersAutocomplete.as_view(), name="users_autocomplete"),
     re_path(r"^home/references_autocomplete/$", ReferencesAutocomplete.as_view(create_field='refers'),
             name="references_autocomplete"),
+    re_path(r"^staffhome/faketoolkit/", fakenews_home, name="fake_toolkit"),
+    re_path(r"^staffhome/imagefaketool$", fakenews_image_search, name="fake_image_search"),
+    re_path(r"^staffhome/imagedataset", fakenews_image_dataset, name="fake_image_dataset"),
 
 ]

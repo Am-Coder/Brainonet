@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block body_block %}
+    <div>
+        <div class="search-bar">
+            <form method="post" enctype="multipart/form-data" action="{% url 'personal:fake_image_search' %}">
+                {% csrf_token %}
+                {{ image_form.as_p }}
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <div class="result-container container">
+             <div class="row">
+            {% for i in results %}
+                  <div class="col-md-3">
+                    <div class="thumbnail">
+                      <a href="{{ i.1 }}">
+                        <img src="{{ i.1 }}" alt="Lights" style="width:100%">
+                        <div class="caption">
+                          <p>{{ i.0 }}</p>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+            {% endfor %}
+             </div>
+        </div>
+    </div>
+
+{% endblock %}
+
