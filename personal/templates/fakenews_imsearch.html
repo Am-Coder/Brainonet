@@ -5,9 +5,14 @@
         <div class="search-bar">
             <form method="post" enctype="multipart/form-data" action="{% url 'personal:fake_image_search' %}">
                 {% csrf_token %}
-                {{ image_form.as_p }}
-                <button type="submit">Search</button>
+                <table>
+                {{ image_form.as_table }}
+                </table>
+
+                <button class="btn-primary" type="submit">Search</button>
             </form>
+            <a class="btn-link" href="{% url 'personal:fake_image_dataset' %}">Update Dataset </a>
+            <div class="text-danger text-capitalize"><h1>{{ error }}</h1></div>
         </div>
 
         <div class="result-container container">
@@ -27,6 +32,7 @@
              </div>
         </div>
     </div>
+
 
 {% endblock %}
 

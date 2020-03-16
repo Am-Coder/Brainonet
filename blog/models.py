@@ -36,6 +36,7 @@ class Blog(models.Model):
     references = models.ManyToManyField(References)
     vote_count = models.PositiveIntegerField(default=0, verbose_name="vote count")
     slug = models.SlugField(blank=True, unique=True)
+    approved = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['title']

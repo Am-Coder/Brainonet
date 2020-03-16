@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def staffhome(request):
     context = {}
     # token = get_token_from_cookie(request)
@@ -112,7 +112,7 @@ class UserListView(generic.ListView, APIView):
 
 
 class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
@@ -146,12 +146,13 @@ def stafflogin(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def uploadblog(request):
     blog_form = BlogForm(request.POST, request.FILES)
 
     if blog_form.is_valid():
         blog_form.save()
+        # print(blog_form.cleaned_data['image'].upload_to)
         return redirect(reverse("personal:staff_home"))
 
     print(blog_form.errors)
@@ -215,7 +216,11 @@ def fakenews_image_search(request):
         cd = colordescriptor.ColorDescriptor((8, 12, 3))
         features = cd.describe(image)
         results = searcher.Searcher().search(features, 3)
-        context['results'] = results
+        context['image_form'] = form.ImageSearchForm
+        if len(results) != 0:
+            context['results'] = results
+        else:
+            context['error'] = 'No Results Found'
     else:
         logger.warning("Fake News Form Invalid")
 
@@ -228,9 +233,16 @@ def fakenews_image_search(request):
 def fakenews_image_dataset(request):
     context = {}
     logger.info("Starting dataset creation ...")
-    createdataset.create()
-    context['done'] = 'done'
-    return Response(context)
+    context['image_form'] = form.ImageSearchForm
+
+    try:
+        createdataset.create_with_db()
+        return render(request, 'fakenews_imsearch.html', context)
+    # Need to correct for specific exceptions problem with opencv Python
+    except Exception as e:
+        logger.exception(e)
+        context['error'] = 'Some problem occured, Try again later'
+        return render(request, 'fakenews_imsearch.html', context)
 
 
 def get_opencv_img_from_buffer(buffer, flags=-1):
