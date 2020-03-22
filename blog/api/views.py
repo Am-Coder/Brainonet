@@ -9,13 +9,10 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from account.models import Account
 from blog.models import Blog, Comment, Vote
 from blog.api.serializers import BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, CommentCreateSerializer
+from django.utils.translation import ugettext_lazy as _
+import logging
 
-
-SUCCESS = 'success'
-ERROR = 'error'
-DELETE_SUCCESS = 'deleted'
-UPDATE_SUCCESS = 'updated'
-CREATE_SUCCESS = 'created'
+logger = logging.getLogger(__name__)
 
 
 @api_view(['GET', ])
@@ -44,7 +41,7 @@ def api_update_blog_view(request, slug):
         data = {}
         if serializer.is_valid():
             serializer.save()
-            data['response'] = UPDATE_SUCCESS
+            data['response'] = _("response.success")
             data['pk'] = blog.pk
             data['title'] = blog.title
             data['body'] = blog.body
@@ -71,7 +68,7 @@ def api_delete_blog_view(request, slug):
         operation = blog.delete()
         data = {}
         if operation:
-            data['response'] = DELETE_SUCCESS
+            data['response'] = _("response.success")
         return Response(data=data)
 
 
@@ -86,7 +83,7 @@ def api_create_blog_view(request):
 
         if serializer.is_valid():
             blog = serializer.save()
-            data['response'] = CREATE_SUCCESS
+            data['response'] = _("response.success")
             data['pk'] = blog.pk
             data['title'] = blog.title
             data['body'] = blog.body
@@ -112,20 +109,20 @@ def add_comment(request, slug):
         try:
             blog = Blog.objects.get(slug=slug)
             user = request.user
-            data['response'] = SUCCESS
+            data['response'] = _("response.success")
             # print(blog)
             # print(user)
             serializer.save(user=user, blog=blog, me="ME")
 
         except Blog.DoesNotExist:
-            data['response'] = ERROR
-            data['error_messgage'] = "No Such Blog Exists"
+            data['response'] = _("response.error")
+            data['error_messgage'] = _("msg.blog.not.found")
         except Account.DoesNotExist:
-            data['response'] = ERROR
-            data['error_messgage'] = "You are not authenticated"
+            data['response'] = _("response.error")
+            data['error_messgage'] = _("msg.account.not.found")
         finally:
             return Response(data)
-    data['response'] = ERROR
+    data['response'] = _("response.error")
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -138,10 +135,10 @@ def delete_comment(request, slug, commentid):
     try:
         blog = Blog.objects.get(slug=slug)
         Comment.objects.filter(pk=commentid, blog=blog).delete()
-        data['response'] = SUCCESS
+        data['response'] = _("response.success")
     except Blog.DoesNotExist:
-        data['response'] = ERROR
-        data['error_messgage'] = "No Such Blog Exists"
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
 
     finally:
         return Response(data)
@@ -155,7 +152,7 @@ def toggle_blog_vote(request, slug):
         blog = Blog.objects.get(slug=slug)
         count = blog.vote_count
         all_votes = Vote.objects.filter(blog=blog)
-        data['response'] = SUCCESS
+        data['response'] = _("response.success")
         if all_votes.filter(user=request.user).exists():
             all_votes.filter(user=request.user).delete()
             count -= 1
@@ -168,8 +165,8 @@ def toggle_blog_vote(request, slug):
         blog.save()
 
     except Blog.DoesNotExist:
-        data['response'] = ERROR
-        data['error_messgage'] = "No Such Blog Exists"
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
 
     finally:
         return Response(data)
@@ -181,14 +178,14 @@ def has_voted(request, slug):
     data = {}
     try:
         if Vote.objects.filter(user=request.user, blog=Blog.objects.get(slug=slug)).exists():
-            data['response'] = SUCCESS
+            data['response'] = _("response.success")
             data['status'] = True
         else:
-            data['response'] = SUCCESS
+            data['response'] = _("response.success")
             data['status'] = False
     except Blog.DoesNotExist:
-        data['response'] = ERROR
-        data['error_messgage'] = "No Such Blog Exists"
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
 
     finally:
         return Response(data)

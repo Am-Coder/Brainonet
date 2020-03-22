@@ -1,7 +1,6 @@
 from django.views import generic
 from personal.api import form
 from blog.models import Blog, References
-from django.views.decorators.http import require_POST, require_GET
 from django.utils.decorators import method_decorator
 from .form import BlogForm, CommunityForm, ReferencesModelFormset
 from django.urls import reverse, reverse_lazy
@@ -9,30 +8,31 @@ from django.shortcuts import redirect, render
 from django.shortcuts import Http404, HttpResponse
 from account.models import Account, Token
 from dal import autocomplete
-# from django.db.models import Q
-from django.contrib.admin.views.decorators import staff_member_required
 from account.api.form import MobileForm, OtpForm
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from utilities.imsearch import colordescriptor, searcher, createdataset
+from django.utils.translation import ugettext_lazy as _
 from rest_framework.response import Response
 import cv2
 import logging
 import numpy as np
 
+
 logger = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def staffhome(request):
     context = {}
     # token = get_token_from_cookie(request)
 
     # try:
     #     Token.objects.get(key=token)
+    context['response'] = _("response.success")
     context['blogForm'] = form.BlogForm
     context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
     context['communityForm'] = form.CommunityForm
@@ -59,7 +59,7 @@ def staffhome(request):
 
 
 class BlogHomeView(generic.ListView, APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Blog
     template_name = "blogdisplay.html"
     context_object_name = "blogCollection"
@@ -82,7 +82,7 @@ class BlogUpdateView(generic.UpdateView):
             Token.objects.get(key=token)
             return super(BlogUpdateView, self).post(request, **kwargs)
         except Token.DoesNotExist:
-            return HttpResponse("<h1>401</h1>Unauthorized", status=401)
+            return HttpResponse("response.401", status=401)
 
 
 class BlogDeleteView(generic.DeleteView, APIView):
@@ -107,12 +107,13 @@ class UserListView(generic.ListView, APIView):
     #     return Response({'accountCollection': queryset, 'userForm': form.UserForm})
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['response'] = _("response.success")
         context['userForm'] = form.UserForm
         return context
 
 
 class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
@@ -146,7 +147,7 @@ def stafflogin(request):
 
 
 @api_view(['POST'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def uploadblog(request):
     blog_form = BlogForm(request.POST, request.FILES)
 
@@ -155,8 +156,7 @@ def uploadblog(request):
         # print(blog_form.cleaned_data['image'].upload_to)
         return redirect(reverse("personal:staff_home"))
 
-    print(blog_form.errors)
-    return HttpResponse("Some Error Occured")
+    return HttpResponse(_("msg.upload.error"))
 
 
 @api_view(['POST'])
@@ -166,7 +166,7 @@ def uploadreferences(request):
     if reference_form.is_valid():
         References.objects.get_or_create(**reference_form.cleaned_data)
         return redirect(reverse("personal:staff_home"))
-    return HttpResponse("Reference Already Exists")
+    return HttpResponse(_("msg.upload.error"))
 
 
 @api_view(['POST'])
@@ -176,7 +176,7 @@ def uploadcommunity(request):
     if community_form.is_valid():
         community_form.save()
         return redirect(reverse("personal:staff_home"))
-    return HttpResponse("Some Error Occured")
+    return HttpResponse(_("msg.upload.error"))
 
 
 @api_view(['GET'])
@@ -192,15 +192,9 @@ def stafflogout(request):
 @permission_classes([])
 def fakenews_home(request):
     context = {}
+    context['response'] = _("response.success")
     context['image_form'] = form.ImageSearchForm
     return render(request, 'fakenews_imsearch.html', context)
-
-
-def get_token_from_cookie(request):
-    token = request.COOKIES.get("Authorization")
-    if token:
-        token = token.replace("Token%20", "")
-    return token
 
 
 @api_view(['POST'])
@@ -209,7 +203,7 @@ def fakenews_image_search(request):
     context = {}
     image_form = form.ImageSearchForm(request.POST, request.FILES)
     if image_form.is_valid():
-        logger.info("Fake News Form Valid")
+        logger.info("Form Valid")
         context = {}
         logger.info(request.FILES.get('image'))
         image = get_opencv_img_from_buffer(request.FILES.get('image'))
@@ -218,11 +212,13 @@ def fakenews_image_search(request):
         results = searcher.Searcher().search(features, 3)
         context['image_form'] = form.ImageSearchForm
         if len(results) != 0:
+            context['response'] = _("response.success")
             context['results'] = results
         else:
-            context['error'] = 'No Results Found'
+            context['response'] = _("response.error")
+            context['error_message'] = _('msg.personal.fake.imagesearch.not.found')
     else:
-        logger.warning("Fake News Form Invalid")
+        logger.warning("Form Invalid")
 
     context['image_form'] = form.ImageSearchForm
     return render(request, 'fakenews_imsearch.html', context)
@@ -241,11 +237,19 @@ def fakenews_image_dataset(request):
     # Need to correct for specific exceptions problem with opencv Python
     except Exception as e:
         logger.exception(e)
-        context['error'] = 'Some problem occured, Try again later'
+        context['error_message'] = _('msg.personal.fake.imagesearch.dataset.error')
         return render(request, 'fakenews_imsearch.html', context)
 
 
+# Utility Functions
 def get_opencv_img_from_buffer(buffer, flags=-1):
     bytes_as_np_array = np.frombuffer(buffer.read(), dtype=np.uint8)
     return cv2.imdecode(bytes_as_np_array, flags)
+
+
+def get_token_from_cookie(request):
+    token = request.COOKIES.get("Authorization")
+    if token:
+        token = token.replace("Token%20", "")
+    return token
 

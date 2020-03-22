@@ -7,9 +7,10 @@ import pyotp
 import json
 from account.api.serializers import AccountSerializer, AuthiSerializer
 from rest_framework.permissions import IsAuthenticated
+from django.utils.translation import ugettext_lazy as _
+import logging
 
-# Create your views here.
-
+logger = logging.getLogger(__name__)
 
 class OTPGenerator(APIView):
     authentication_classes = []
@@ -24,9 +25,8 @@ class OTPGenerator(APIView):
         secretKey = pyotp.random_base32()
         totp = pyotp.TOTP(secretKey, interval=1000000)
         otp = totp.now()
-        print(otp)
-        print(num)
-        resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', otp)
+        message = otp + " is the OTP for brainonet account verification on your mobile number. W4Fc9njfi5c"
+        resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', message)
         resp = json.loads(resp)
         print(resp)
         if resp['status'] == "success":
@@ -37,8 +37,8 @@ class OTPGenerator(APIView):
             temporary_auth.otp = secretKey
             temporary_auth.save()
         else:
-            data['response'] = "Error"
-            data['error_message'] = "OTP is not send. Resend OTP"
+            data['response'] = _("response.error")
+            data['error_message'] = _("msg.account.otp.not.send")
 
         return Response(data)
 
@@ -66,7 +66,7 @@ class OTPAuthenticate(APIView):
                     try:
                         user = Account.objects.get(mobile_number=mobile_no)
                         token = Token.objects.create(user=user)
-                        data['response'] = "success"
+                        data['response'] = _("response.success")
                         data['token'] = token.key
                         return Response(data)
                     except Account.DoesNotExist:
@@ -74,21 +74,21 @@ class OTPAuthenticate(APIView):
                         user.mobile_number = mobile_no
                         user.save()
                         token = Token.objects.create(user=user)
-                        data['response'] = "success"
+                        data['response'] = _("response.success")
                         data['token'] = token.key
                         return Response(data)
                     except Token.DoesNotExist:
-                        data['response'] = "Error"
-                        data['error_message'] = "There is problem in your autherisation."
+                        data['response'] = _("response.error")
+                        data['error_message'] = _("msg.account.token.expired")
                         return Response(data)
                 else:
-                    data['response'] = "Error"
-                    data['error_message'] = "Invalid OTP. Enter OTP again."
+                    data['response'] = _("response.error")
+                    data['error_message'] = _("msg.account.otp.invalid")
                     return Response(data)
 
         except Authi.DoesNotExist:
-            data['response'] = "Error"
-            data['error_message'] = "No Such User Exists"
+            data['response'] = _("response.error")
+            data['error_message'] = _("msg.account.otp.expired")
             return Response(data)
 
 
@@ -111,16 +111,16 @@ class Login(APIView):
             user.last_name = last_name
             token = request.auth
             user.save()
-            data['response'] = "Welcome to braionet"
+            data['response'] = _("msg.welcome")
             data['token'] = token.key
             return Response(data)
         except Account.DoesNotExist:
-            data['response'] = "Error"
-            data['error_message'] = "Make your account first."
+            data['response'] = _("response.error")
+            data['error_message'] = _("msg.account.not.found")
             return Response(data)
         except Token.DoesNotExist:
-            data['response'] = "Error"
-            data['error_message'] = "Token expired, login again."
+            data['response'] = _("response.error")
+            data['error_message'] = _("msg.account.token.expired")
             return Response(data)
 
 
@@ -134,11 +134,11 @@ class Logout(APIView):
         try:
             request.auth.delete()
             logout(request)
-            data['response'] = 'success'
-            data['message'] = 'Logout Successful'
+            data['response'] = _("response.success")
+            data['message'] = _("msg.account.logout.success")
             return Response(data)
         except Token.DoesNotExist:
-            data['response'] = 'Error'
-            data['error_message'] = "You are not authenticated."
+            data['response'] = _("response.error")
+            data['error_message'] = _("msg.account.token.expired")
             return Response(data)
 

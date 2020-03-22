@@ -1,0 +1,34 @@
+response.success                                                                error_msg & errror-response
+response.error                                                                  success_msg & success-response
+response.404
+response.401
+response.402
+response.403
+
+msg.upload.error
+msg.upload.success
+msg.create.error
+msg.create.success
+msg.delete.error
+msg.delete.success
+msg.alreadyexists
+msg.error.notfound
+msg.error.tryagain.later
+msg.welcome
+msg.pageindex.out.of.bound
+
+msg.account.otp.not.send
+msg.account.otp.expired
+msg.account.otp.invalid
+msg.account.token.expired
+msg.account.not.found
+msg.account.auth.problem
+msg.account.create
+msg.account.logout.success
+
+msg.grpchat.grp.not.found
+
+msg.community.not.found
+
+msg.personal.fake.imagesearch.not.found
+msg.personal.fake.imagesearch.dataset.error

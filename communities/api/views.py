@@ -8,13 +8,10 @@ from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 from communities.models import Communities, CommunitySubscribers
 from communities.api.serializers import CommunitySerializer, CommunityCreateSerializer, CommunityUpdateSerializer
+from django.utils.translation import ugettext_lazy as _
+import logging
 
-SUCCESS = 'success'
-ERROR = 'error'
-DELETE_SUCCESS = 'deleted'
-UPDATE_SUCCESS = 'updated'
-CREATE_SUCCESS = 'created'
-
+logger = logging.getLogger(__name__)
 
 @api_view(['GET', ])
 @permission_classes((IsAuthenticated,))
@@ -42,7 +39,7 @@ def api_update_community_view(request, slug):
         data = {}
         if serializer.is_valid():
             serializer.save()
-            data['response'] = UPDATE_SUCCESS
+            data['response'] = _("response.success")
             data['pk'] = community.pk
             data['name'] = community.name
             data['description'] = community.description
@@ -72,7 +69,7 @@ def api_delete_community_view(request, slug):
         operation = community.delete()
         data = {}
         if operation:
-            data['response'] = DELETE_SUCCESS
+            data['response'] = _("response.success")
         return Response(data=data)
 
 
@@ -87,7 +84,7 @@ def api_create_community_view(request):
 
         if serializer.is_valid():
             community = serializer.save()
-            data['response'] = CREATE_SUCCESS
+            data['response'] = _("response.success")
             data['pk'] = community.pk
             data['name'] = community.name
             data['description'] = community.description
@@ -113,11 +110,11 @@ def api_community_subscribe_view(request, slug):
         community = Communities.objects.get(slug=slug)
         user = request.user
         CommunitySubscribers(user=user, community=community).save()
-        data['response'] = SUCCESS
+        data['response'] = _("response.success")
         return Response(data=data)
     except Communities.DoesNotExist:
-        data['response'] = ERROR
-        data['error_message'] = 'No such Community'
+        data['response'] = _("response.error")
+        data['error_message'] = _("msg.community.not.found")
         return Response(data=data)
 
 
@@ -128,15 +125,15 @@ def api_community_check_subscribe_view(request, slug):
     try:
         community = Communities.objects.get(slug=slug)
         user = request.user
-        data['response'] = SUCCESS
+        data['response'] = _("response.success")
         if CommunitySubscribers.objects.filter(user=user, community=community):
             data['subscribed'] = True
             return Response(data=data)
         data['subscribed'] = False
         return Response(data=data)
     except Communities.DoesNotExist:
-        data['response'] = ERROR
-        data['error_message'] = 'No such Community'
+        data['response'] = _("response.error")
+        data['error_message'] = _("msg.community.not.found")
         return Response(data=data)
 
 

@@ -36,9 +36,9 @@ def create_with_db():
     expose = Expose.objects.filter(approved=False)
     blogs = Blog.objects.filter(approved=False)
     if blogs:
-        make_csv(blogs, 'w')
+        make_csv(blogs, 'a')
     if expose:
-        make_csv(expose, 'w')
+        make_csv(expose, 'a')
 
 
 def make_csv(objects, mode):
