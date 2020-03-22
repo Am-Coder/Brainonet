@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def staffhome(request):
+@permission_classes([])
+def staffhome_view(request):
     context = {}
     # token = get_token_from_cookie(request)
 
@@ -37,25 +37,37 @@ def staffhome(request):
     context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
     context['communityForm'] = form.CommunityForm
     context['referencesForm'] = form.ReferencesForm
-    return render(request, "home.html", context)
+    return render(request, "adminapp/home.html", context)
     # except Token.DoesNotExist:
     #     return HttpResponse("<h1>401</h1>Unauthorized", status=401)
 
 
-# class StaffCreateView(generic.ListView, APIView):
-#     permission_classes = []
-#     model = References
-#     template_name = "home.html"
-#     context_object_name = "references"
-#     paginate_by = 10
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['blogForm'] = form.BlogForm
-#         # context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
-#         context['communityForm'] = form.CommunityForm
-#         context['referencesForm'] = form.ReferencesForm
-#         return context
+@api_view(["GET"])
+@permission_classes([])
+def blog_manager_view(request):
+    context = {}
+    context['response'] = _("response.success")
+    context['blogForm'] = form.BlogForm
+    context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
+    return render(request, "adminapp/pages/managers/blog-manager.html", context)
+
+
+@api_view(["GET"])
+@permission_classes([])
+def community_manager_view(request):
+    context = {}
+    context['response'] = _("response.success")
+    context['communityForm'] = form.CommunityForm
+    return render(request, "adminapp/pages/managers/community-manager.html", context)
+
+
+@api_view(["GET"])
+@permission_classes([])
+def reference_manager_view(request):
+    context = {}
+    context['response'] = _("response.success")
+    context['referenceForm'] = form.ReferencesForm
+    return render(request, "adminapp/pages/managers/reference-manager.html", context)
 
 
 class BlogHomeView(generic.ListView, APIView):
@@ -139,7 +151,7 @@ class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
         return qs
 
 
-def stafflogin(request):
+def stafflogin_view(request):
     context = {}
     context['mobileform'] = MobileForm
     context['otpform'] = OtpForm

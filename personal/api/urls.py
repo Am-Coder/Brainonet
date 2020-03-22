@@ -5,8 +5,11 @@ app_name = "personal"
 
 urlpatterns = [
 
-    re_path(r"^$", stafflogin, name="staff_login"),
-    re_path(r"^staffhome/$", staffhome, name="staff_home"),
+    re_path(r"^$", stafflogin_view, name="staff_login"),
+    re_path(r"^staffhome/$", staffhome_view, name="staff_home"),
+    re_path(r"^staffhome/blog-manager/$", blog_manager_view, name="blog_manager"),
+    re_path(r"^staffhome/community-manager/$", community_manager_view, name="community_manager"),
+    re_path(r"^staffhome/reference-manager/$", reference_manager_view, name="reference_manager"),
     re_path(r"^staffhome/addblog/$", uploadblog, name="add_blog"),
     re_path(r"^staffhome/addreferences/$", uploadreferences, name="add_references"),
     re_path(r"^staffhome/addcommunity/$", uploadcommunity, name="add_community"),
