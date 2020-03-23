@@ -199,8 +199,8 @@ def stafflogout(request):
 def fakenews_home(request):
     context = {}
     context['response'] = _("response.success")
-    context['image_form'] = form.ImageSearchForm
-    return render(request, 'fakenews_imsearch.html', context)
+    context['imageForm'] = form.ImageSearchForm
+    return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
 
 
 @api_view(['POST'])
@@ -216,7 +216,6 @@ def fakenews_image_search(request):
         cd = colordescriptor.ColorDescriptor((8, 12, 3))
         features = cd.describe(image)
         results = searcher.Searcher().search(features, 3)
-        context['image_form'] = form.ImageSearchForm
         if len(results) != 0:
             context['response'] = _("response.success")
             context['results'] = results
@@ -226,8 +225,8 @@ def fakenews_image_search(request):
     else:
         logger.warning("Form Invalid")
 
-    context['image_form'] = form.ImageSearchForm
-    return render(request, 'fakenews_imsearch.html', context)
+    context['imageForm'] = form.ImageSearchForm
+    return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
 
 
 @api_view(['GET'])
@@ -235,16 +234,16 @@ def fakenews_image_search(request):
 def fakenews_image_dataset(request):
     context = {}
     logger.info("Starting dataset creation ...")
-    context['image_form'] = form.ImageSearchForm
+    context['imageForm'] = form.ImageSearchForm
 
     try:
         createdataset.create_with_db()
-        return render(request, 'fakenews_imsearch.html', context)
+        return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
     # Need to correct for specific exceptions problem with opencv Python
     except Exception as e:
         logger.exception(e)
         context['error_message'] = _('msg.personal.fake.imagesearch.dataset.error')
-        return render(request, 'fakenews_imsearch.html', context)
+        return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
 
 
 # Utility Functions
