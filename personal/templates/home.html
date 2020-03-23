@@ -2,6 +2,7 @@
 
 
 {% block body_block %}
+    {% load widget_tweaks %}
 
     <div class="row">
 
@@ -10,19 +11,24 @@
             <form method="post" enctype="multipart/form-data" action="{% url 'personal:add_blog' %}" >
 
                 {% csrf_token %}
-            <table>
-                {{ blogForm.as_table}}
-            </table>
-            {{ referencesFormset.management_form }}
-            <div id="form_set">
-                {% for form in referencesFormset.forms %}
-                        {{ form.as_p }}
-                {% endfor %}
-            </div>
 
-            <div id="empty_form" style="display:none">
-                    {{ referencesFormset.empty_form.as_p }}
-            </div>
+                {% for field in blogForm.visible_fields %}
+                    {{ field.label_tag }}
+                    {% render_field field %}
+                {% endfor %}
+<!--            <table>-->
+<!--                {{ blogForm.as_table}}-->
+<!--            </table>-->
+<!--            {{ referencesFormset.management_form }}-->
+<!--            <div id="form_set">-->
+<!--                {% for form in referencesFormset.forms %}-->
+<!--                        {{ form.as_p }}-->
+<!--                {% endfor %}-->
+<!--            </div>-->
+
+<!--            <div id="empty_form" style="display:none">-->
+<!--                    {{ referencesFormset.empty_form.as_p }}-->
+<!--            </div>-->
 <!--            <input type="button" class="btn btn-default" value="More" id="add_more">-->
 <!--            <input type="button" class="btn btn-default" value="Less" id="remove_more">-->
             <button type="submit" class="btn btn-default" >Submit</button>

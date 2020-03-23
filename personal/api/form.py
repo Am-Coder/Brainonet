@@ -16,7 +16,6 @@ class BlogForm(forms.ModelForm):
         widgets = {
             'references': autocomplete.ModelSelect2Multiple(url="personal:references_autocomplete",
                                                             attrs={
-                                                                'data-placeholder': 'References ...',
                                                                 'data-minimum-input-length': 3,
                                                             }),
         }
@@ -41,7 +40,6 @@ class UserForm(forms.ModelForm):
         widgets = {
             'mobile_number': autocomplete.Select2(url="personal:users_autocomplete",
                                                   attrs={
-                                                      'data-placeholder': 'Check if User Exists',
                                                       'data-minimum-input-length': 3,
                                                   }
                                                   ),

@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'yaml',
     'channels',
     'groupchat',
-
+    'widget_tweaks',
     # 'account.models.'
     # 'autocomplete_light',
     # 'rest_framework.authy',

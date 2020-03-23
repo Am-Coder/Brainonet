@@ -28,18 +28,13 @@ logger = logging.getLogger(__name__)
 @permission_classes([])
 def staffhome_view(request):
     context = {}
-    # token = get_token_from_cookie(request)
-
-    # try:
-    #     Token.objects.get(key=token)
     context['response'] = _("response.success")
-    context['blogForm'] = form.BlogForm
-    context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
-    context['communityForm'] = form.CommunityForm
-    context['referencesForm'] = form.ReferencesForm
+    # context['blogForm'] = form.BlogForm
+    # context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
+    # context['communityForm'] = form.CommunityForm
+    # context['referencesForm'] = form.ReferencesForm
+    # context['fullname'] = request.user.first_name + "asdf " + request.user.last_name
     return render(request, "adminapp/home.html", context)
-    # except Token.DoesNotExist:
-    #     return HttpResponse("<h1>401</h1>Unauthorized", status=401)
 
 
 @api_view(["GET"])
@@ -48,7 +43,6 @@ def blog_manager_view(request):
     context = {}
     context['response'] = _("response.success")
     context['blogForm'] = form.BlogForm
-    context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
     return render(request, "adminapp/pages/managers/blog-manager.html", context)
 
 
@@ -71,7 +65,7 @@ def reference_manager_view(request):
 
 
 class BlogHomeView(generic.ListView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     model = Blog
     template_name = "blogdisplay.html"
     context_object_name = "blogCollection"
@@ -80,7 +74,7 @@ class BlogHomeView(generic.ListView, APIView):
 
 
 class BlogUpdateView(generic.UpdateView):
-    # permission_classes = []
+    permission_classes = []
     model = Blog
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "blog_update_form.html"
@@ -98,7 +92,7 @@ class BlogUpdateView(generic.UpdateView):
 
 
 class BlogDeleteView(generic.DeleteView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     model = Blog
     success_url = reverse_lazy('personal:show_blog')
     template_name = "confirm_blog_delete.html"
@@ -106,9 +100,9 @@ class BlogDeleteView(generic.DeleteView, APIView):
 
 class UserListView(generic.ListView, APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     model = Account
-    template_name = "showaccount.html"
+    template_name = "adminapp/pages/managers/user-manager.html"
     context_object_name = "accountCollection"
     paginate_by = 10
     queryset = Account.objects.all()
@@ -125,7 +119,7 @@ class UserListView(generic.ListView, APIView):
 
 
 class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
@@ -138,7 +132,7 @@ class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
 
 
 class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
@@ -153,13 +147,13 @@ class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
 
 def stafflogin_view(request):
     context = {}
-    context['mobileform'] = MobileForm
-    context['otpform'] = OtpForm
-    return render(request, 'stafflogin.html', context)
+    context['mobileForm'] = MobileForm
+    context['otpForm'] = OtpForm
+    return render(request, 'adminapp/login.html', context)
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def uploadblog(request):
     blog_form = BlogForm(request.POST, request.FILES)
 
@@ -172,7 +166,7 @@ def uploadblog(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def uploadreferences(request):
     reference_form = form.ReferencesForm(request.POST)
     if reference_form.is_valid():
@@ -182,7 +176,7 @@ def uploadreferences(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def uploadcommunity(request):
     community_form = CommunityForm(request.POST, request.FILES)
     if community_form.is_valid():
@@ -192,7 +186,7 @@ def uploadcommunity(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def stafflogout(request):
 
     request.auth.delete()
