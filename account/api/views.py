@@ -25,7 +25,7 @@ class OTPGenerator(APIView):
         secretKey = pyotp.random_base32()
         totp = pyotp.TOTP(secretKey, interval=1000000)
         otp = totp.now()
-        message = otp + " is the OTP for brainonet account verification on your mobile number. W4Fc9njfi5c"
+        message = otp + " is the OTP for brainonet account verification on your mobile number. W4Fc9njfi5C"
         resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', message)
         resp = json.loads(resp)
         print(resp)

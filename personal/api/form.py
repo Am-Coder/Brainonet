@@ -40,7 +40,7 @@ class UserForm(forms.ModelForm):
         widgets = {
             'mobile_number': autocomplete.Select2(url="personal:users_autocomplete",
                                                   attrs={
-                                                      'data-minimum-input-length': 3,
+                                                      'data-minimum-input-length': 5,
                                                   }
                                                   ),
 

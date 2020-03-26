@@ -1,6 +1,7 @@
 from django.views import generic
 from personal.api import form
 from blog.models import Blog, References
+from communities.models import Communities
 from django.utils.decorators import method_decorator
 from .form import BlogForm, CommunityForm, ReferencesModelFormset
 from django.urls import reverse, reverse_lazy
@@ -19,7 +20,6 @@ from rest_framework.response import Response
 import cv2
 import logging
 import numpy as np
-
 
 logger = logging.getLogger(__name__)
 
@@ -67,17 +67,25 @@ def reference_manager_view(request):
 class BlogHomeView(generic.ListView, APIView):
     permission_classes = []
     model = Blog
-    template_name = "blogdisplay.html"
+    template_name = "adminapp/pages/managers/update-job/blog-update.html"
     context_object_name = "blogCollection"
     paginate_by = 10
-    queryset = Blog.objects.all()
+    # queryset = Blog.objects.all()
+
+    def get_queryset(self):
+        if self.request.GET.get('filter_title'):
+            title = self.request.GET.get('filter_title')
+            blog = Blog.objects.filter(title__contains=title)
+        else:
+            blog = Blog.objects.all()
+        return blog
 
 
 class BlogUpdateView(generic.UpdateView):
     permission_classes = []
     model = Blog
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
-    template_name = "blog_update_form.html"
+    template_name = "adminapp/pages/managers/update-job/update-form.html"
     success_url = reverse_lazy('personal:show_blog')
     form_class = BlogForm
 
@@ -95,7 +103,49 @@ class BlogDeleteView(generic.DeleteView, APIView):
     permission_classes = []
     model = Blog
     success_url = reverse_lazy('personal:show_blog')
-    template_name = "confirm_blog_delete.html"
+    template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+
+
+class CommunityHomeView(generic.ListView, APIView):
+    permission_classes = []
+    model = Communities
+    template_name = "adminapp/pages/managers/update-job/community-update.html"
+    context_object_name = "communityCollection"
+    paginate_by = 10
+    # queryset = Blog.objects.all()
+
+    def get_queryset(self):
+        if self.request.GET.get('filter_name'):
+            name = self.request.GET.get('filter_name')
+            community = Communities.objects.filter(name__contains=name)
+        else:
+            community = Communities.objects.all()
+        return community
+
+
+class CommunityUpdateView(generic.UpdateView):
+    permission_classes = []
+    model = Communities
+    # fields = ['title', 'references', 'description', 'body', 'image', 'community']
+    template_name = "adminapp/pages/managers/update-job/update-form.html"
+    success_url = reverse_lazy('personal:show_community')
+    form_class = CommunityForm
+
+    def post(self, request, *args, **kwargs):
+        token = get_token_from_cookie(request)
+        print(token)
+        try:
+            Token.objects.get(key=token)
+            return super(CommunityUpdateView, self).post(request, **kwargs)
+        except Token.DoesNotExist:
+            return HttpResponse("response.401", status=401)
+
+
+class CommunityDeleteView(generic.DeleteView, APIView):
+    permission_classes = []
+    model = Communities
+    success_url = reverse_lazy('personal:show_community')
+    template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
 
 
 class UserListView(generic.ListView, APIView):
