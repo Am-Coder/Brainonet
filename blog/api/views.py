@@ -7,8 +7,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 from account.models import Account
-from blog.models import Blog, Comment, Vote
-from blog.api.serializers import BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, CommentCreateSerializer
+from blog.models import Blog, Comment, Vote, References
+from blog.api.serializers import BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, CommentCreateSerializer, ReferenceSerializer
 from django.utils.translation import ugettext_lazy as _
 import logging
 
@@ -195,7 +195,18 @@ class ApiBlogListView(ListAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('title', 'body', 'community__name')
+    search_fields = ('title', 'description', 'community__name')
+
+
+class ApiReferenceListView(ListAPIView):
+    queryset = References.objects.all()
+    serializer_class = ReferenceSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = ()
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('refers', 'description')
+

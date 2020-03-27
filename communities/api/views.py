@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
+from account.models import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 @api_view(['GET', ])
 @permission_classes((IsAuthenticated,))
@@ -141,7 +142,7 @@ class ApiCommunityListView(ListAPIView):
     queryset = Communities.objects.all()
     serializer_class = CommunitySerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('name', 'description')

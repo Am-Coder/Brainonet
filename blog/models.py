@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.text import slugify
-from django.conf import settings
 from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 from communities.models import Communities
@@ -17,6 +16,7 @@ def upload_location(instance, filename, **kwargs):
 
 class References(models.Model):
     refers = models.CharField(max_length=300, null=False, blank=True, unique=True)
+    description = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         ordering = ['refers']

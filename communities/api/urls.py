@@ -16,7 +16,7 @@ urlpatterns = [
   path('<slug>/update', api_update_community_view, name='update'),
   path('<slug>/delete', api_delete_community_view, name="delete"),
   path('create', api_create_community_view, name="create"),
-  path('list', ApiCommunityListView.as_view(), name="list"),
+  path('community-list', ApiCommunityListView.as_view(), name="community-list"),
   path('<slug>/subscribe/', api_community_subscribe_view, name="community_subscribe"),
   path('<slug>/checksubscribe/', api_community_check_subscribe_view, name="check_community_subscribe")
 ]

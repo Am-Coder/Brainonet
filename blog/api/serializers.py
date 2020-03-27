@@ -1,16 +1,15 @@
 from rest_framework import serializers
-from blog.models import Blog, Comment
+from blog.models import Blog, Comment, References
 
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.storage import FileSystemStorage
+from blog.utils import is_image_aspect_ratio_valid, is_image_size_valid
 
 IMAGE_SIZE_MAX_BYTES = 1024 * 1024 * 3
 MIN_TITLE_LENGTH = 5
 MIN_BODY_LENGTH = 50
-
-from blog.utils import is_image_aspect_ratio_valid, is_image_size_valid
 
 
 class BlogSerializer(serializers.ModelSerializer):
@@ -143,3 +142,9 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         comment = Comment(comment=comment_text, user=kwargs['user'], blog=kwargs['blog'])
         comment.save()
         return comment
+
+
+class ReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = References
+        fields = ['pk', 'refers', 'description']

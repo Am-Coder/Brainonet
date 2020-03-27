@@ -8,7 +8,8 @@ from blog.api.views import(
   api_create_blog_view,
   api_detail_blog_view,
   api_update_blog_view,
-  ApiBlogListView
+  ApiBlogListView,
+  ApiReferenceListView
 
 )
 
@@ -19,7 +20,8 @@ urlpatterns = [
   path('<slug>/update', api_update_blog_view, name="update"),
   path('<slug>/delete', api_delete_blog_view, name="delete"),
   path('create', api_create_blog_view, name="create"),
-  path('list', ApiBlogListView.as_view(), name="list"),
+  path('blog-list', ApiBlogListView.as_view(), name="blog-list"),
+  path('reference-list', ApiReferenceListView.as_view(), name="reference-list"),
   path('<slug>/addcomment', add_comment, name="add_comment"),
   path('<slug>/<commentid>/deletecomment', delete_comment, name="delete_comment"),
   path('<slug>/vote', toggle_blog_vote, name="blog_vote"),
