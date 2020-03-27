@@ -3,7 +3,7 @@ from personal.api import form
 from blog.models import Blog, References
 from communities.models import Communities
 from django.utils.decorators import method_decorator
-from .form import BlogForm, CommunityForm, ReferencesModelFormset
+from .form import BlogForm, CommunityForm, ReferencesModelFormset, ReferencesForm
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect, render
 from django.shortcuts import Http404, HttpResponse
@@ -145,6 +145,31 @@ class CommunityDeleteView(generic.DeleteView, APIView):
     permission_classes = []
     model = Communities
     success_url = reverse_lazy('personal:show_community')
+    template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+
+
+class ReferenceUpdateView(generic.UpdateView):
+    permission_classes = []
+    model = References
+    # fields = ['title', 'references', 'description', 'body', 'image', 'community']
+    template_name = "adminapp/pages/managers/update-job/update-form.html"
+    success_url = reverse_lazy('personal:reference_manager')
+    form_class = ReferencesForm
+
+    def post(self, request, *args, **kwargs):
+        token = get_token_from_cookie(request)
+        print(token)
+        try:
+            Token.objects.get(key=token)
+            return super(ReferenceUpdateView, self).post(request, **kwargs)
+        except Token.DoesNotExist:
+            return HttpResponse("response.401", status=401)
+
+
+class ReferenceDeleteView(generic.DeleteView, APIView):
+    permission_classes = []
+    model = References
+    success_url = reverse_lazy('personal:reference_manager')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
 
 
