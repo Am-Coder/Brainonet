@@ -12,6 +12,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class OTPGenerator(APIView):
     authentication_classes = []
     permission_classes = []
@@ -28,6 +29,8 @@ class OTPGenerator(APIView):
         message = otp + " is the OTP for brainonet account verification on your mobile number. W4Fc9njfi5C"
         resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', message)
         resp = json.loads(resp)
+        print(num)
+        print(message)
         print(resp)
         if resp['status'] == "success":
             data['response'] = resp['status']
@@ -41,6 +44,34 @@ class OTPGenerator(APIView):
             data['error_message'] = _("msg.account.otp.not.send")
 
         return Response(data)
+
+# class OTPGenerator(APIView):
+#     authentication_classes = []
+#     permission_classes = []
+#
+#     def post(self, request):
+#         data = {}
+#         num = request.POST.get('phoneNumber')
+#         if Authi.objects.filter(mobile_number=num).exists():
+#             Authi.objects.get(mobile_number=num).delete()
+#         secretKey = pyotp.random_base32()
+#         totp = pyotp.TOTP(secretKey, interval=1000000)
+#         otp = totp.now()
+#         message = otp + " is the OTP for brainonet account verification on your mobile number. W4Fc9njfi5C"
+#         resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', message)
+#         resp = json.loads(resp)
+#         if resp['status'] == "success":
+#             data['response'] = resp['status']
+#             data['message'] = resp['message']
+#             temporary_auth = Authi()
+#             temporary_auth.mobile_number = num
+#             temporary_auth.otp = secretKey
+#             temporary_auth.save()
+#         else:
+#             data['response'] = "Error"
+#             data['error_message'] = "OTP is not send. Resend OTP"
+#
+#         return Response(data)
 
 
 class OTPAuthenticate(APIView):

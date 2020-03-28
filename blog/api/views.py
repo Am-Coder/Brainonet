@@ -195,7 +195,7 @@ class ApiBlogListView(ListAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = ()
+    permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('title', 'description', 'community__name')
@@ -205,7 +205,7 @@ class ApiReferenceListView(ListAPIView):
     queryset = References.objects.all()
     serializer_class = ReferenceSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = ()
+    permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('refers', 'description')

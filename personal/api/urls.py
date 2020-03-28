@@ -1,5 +1,7 @@
 from django.urls import re_path, path, include
 from .views import *
+from blog.api.views import ApiReferenceListView, ApiBlogListView
+from communities.api.views import ApiCommunityListView
 
 app_name = "personal"
 
@@ -23,11 +25,17 @@ urlpatterns = [
     re_path(r"staffhome/editreference/(?P<pk>[\w-]+)/", ReferenceUpdateView.as_view(), name="edit_reference"),
     re_path(r"staffhome/deletereference/(?P<pk>[\w-]+)/", ReferenceDeleteView.as_view(), name="delete_reference"),
     re_path(r"staffhome/logout", stafflogout, name="staff_logout"),
-    re_path(r"^home/users_autocomplete/$", UsersAutocomplete.as_view(), name="users_autocomplete"),
-    re_path(r"^home/references_autocomplete/$", ReferencesAutocomplete.as_view(create_field='refers'),
+    re_path(r"^staffhome/users_autocomplete/$", UsersAutocomplete.as_view(), name="users_autocomplete"),
+    re_path(r"^staffhome/references_autocomplete/$", ReferencesAutocomplete.as_view(create_field='refers'),
             name="references_autocomplete"),
-    re_path(r"^ ", fakenews_home, name="fake_toolkit"),
-    re_path(r"^staffhome/imagefaketool$", fakenews_image_search, name="fake_image_search"),
-    re_path(r"^staffhome/imagedataset", fakenews_image_dataset, name="fake_image_dataset"),
+    re_path(r"^staffhome/imagefaketool$", fakenews_home, name="fake_toolkit"),
+    re_path(r"^staffhome/imagefakesearch$", fakenews_image_search, name="fake_image_search"),
+    re_path(r"^staffhome/imagedataset$", fakenews_image_dataset, name="fake_image_dataset"),
+
+
+    # CORS not working
+    re_path(r"^staffhome/blog-list$", ApiBlogListView.as_view(), name="blog-list"),
+    re_path(r"^staffhome/reference-list$", ApiReferenceListView.as_view(), name="reference-list"),
+    re_path(r"^staffhome/community-list$", ApiCommunityListView.as_view(), name="community-list"),
 
 ]

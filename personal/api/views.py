@@ -2,6 +2,7 @@ from django.views import generic
 from personal.api import form
 from blog.models import Blog, References
 from communities.models import Communities
+from account.models import TokenAuthentication
 from django.utils.decorators import method_decorator
 from .form import BlogForm, CommunityForm, ReferencesModelFormset, ReferencesForm
 from django.urls import reverse, reverse_lazy
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def staffhome_view(request):
     context = {}
     context['response'] = _("response.success")
@@ -38,7 +39,7 @@ def staffhome_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def blog_manager_view(request):
     context = {}
     context['response'] = _("response.success")
@@ -47,7 +48,7 @@ def blog_manager_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def community_manager_view(request):
     context = {}
     context['response'] = _("response.success")
@@ -56,7 +57,7 @@ def community_manager_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def reference_manager_view(request):
     context = {}
     context['response'] = _("response.success")
@@ -65,7 +66,7 @@ def reference_manager_view(request):
 
 
 class BlogHomeView(generic.ListView, APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Blog
     template_name = "adminapp/pages/managers/update-job/blog-update.html"
     context_object_name = "blogCollection"
@@ -82,7 +83,7 @@ class BlogHomeView(generic.ListView, APIView):
 
 
 class BlogUpdateView(generic.UpdateView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Blog
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "adminapp/pages/managers/update-job/update-form.html"
@@ -100,14 +101,14 @@ class BlogUpdateView(generic.UpdateView):
 
 
 class BlogDeleteView(generic.DeleteView, APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Blog
     success_url = reverse_lazy('personal:show_blog')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
 
 
 class CommunityHomeView(generic.ListView, APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Communities
     template_name = "adminapp/pages/managers/update-job/community-update.html"
     context_object_name = "communityCollection"
@@ -124,7 +125,7 @@ class CommunityHomeView(generic.ListView, APIView):
 
 
 class CommunityUpdateView(generic.UpdateView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Communities
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "adminapp/pages/managers/update-job/update-form.html"
@@ -142,14 +143,14 @@ class CommunityUpdateView(generic.UpdateView):
 
 
 class CommunityDeleteView(generic.DeleteView, APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Communities
     success_url = reverse_lazy('personal:show_community')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
 
 
 class ReferenceUpdateView(generic.UpdateView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = References
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "adminapp/pages/managers/update-job/update-form.html"
@@ -167,7 +168,7 @@ class ReferenceUpdateView(generic.UpdateView):
 
 
 class ReferenceDeleteView(generic.DeleteView, APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = References
     success_url = reverse_lazy('personal:reference_manager')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
@@ -175,7 +176,7 @@ class ReferenceDeleteView(generic.DeleteView, APIView):
 
 class UserListView(generic.ListView, APIView):
 
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     model = Account
     template_name = "adminapp/pages/managers/user-manager.html"
     context_object_name = "accountCollection"
@@ -194,8 +195,8 @@ class UserListView(generic.ListView, APIView):
 
 
 class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = []
-
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
         #     return References.objects.none()
@@ -207,8 +208,8 @@ class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
 
 
 class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = []
-
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
         #     return References.objects.none()
@@ -228,25 +229,25 @@ def stafflogin_view(request):
 
 
 @api_view(['POST'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def uploadblog(request):
+    print(request.FILES)
     blog_form = BlogForm(request.POST, request.FILES)
-
     if blog_form.is_valid():
         blog_form.save()
-        # print(blog_form.cleaned_data['image'].upload_to)
         return redirect(reverse("personal:staff_home"))
-
+    print(blog_form.errors)
     return HttpResponse(_("msg.upload.error"))
 
 
 @api_view(['POST'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def uploadreferences(request):
     reference_form = form.ReferencesForm(request.POST)
     if reference_form.is_valid():
         References.objects.get_or_create(**reference_form.cleaned_data)
         return redirect(reverse("personal:staff_home"))
+    print(reference_form.errors)
     return HttpResponse(_("msg.upload.error"))
 
 
@@ -261,7 +262,7 @@ def uploadcommunity(request):
 
 
 @api_view(['GET'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def stafflogout(request):
 
     request.auth.delete()
@@ -270,7 +271,7 @@ def stafflogout(request):
 
 
 @api_view(['GET'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def fakenews_home(request):
     context = {}
     context['response'] = _("response.success")
@@ -279,7 +280,7 @@ def fakenews_home(request):
 
 
 @api_view(['POST'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def fakenews_image_search(request):
     context = {}
     image_form = form.ImageSearchForm(request.POST, request.FILES)
@@ -305,7 +306,7 @@ def fakenews_image_search(request):
 
 
 @api_view(['GET'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def fakenews_image_dataset(request):
     context = {}
     logger.info("Starting dataset creation ...")
