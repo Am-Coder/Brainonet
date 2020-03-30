@@ -29,9 +29,9 @@ class OTPGenerator(APIView):
         message = otp + " is the OTP for brainonet account verification on your mobile number. W4Fc9njfi5C"
         resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', message)
         resp = json.loads(resp)
-        print(num)
-        print(message)
-        print(resp)
+        logger.info("Message being sent to :" + num)
+        logger.info(message)
+        logger.info(resp)
         if resp['status'] == "success":
             data['response'] = resp['status']
             data['message'] = resp['message']
@@ -99,6 +99,7 @@ class OTPAuthenticate(APIView):
                         token = Token.objects.create(user=user)
                         data['response'] = _("response.success")
                         data['token'] = token.key
+                        data['username'] = user.first_name + " " + user.last_name
                         return Response(data)
                     except Account.DoesNotExist:
                         user = Account()

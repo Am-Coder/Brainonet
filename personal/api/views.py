@@ -4,7 +4,7 @@ from blog.models import Blog, References
 from communities.models import Communities
 from account.models import TokenAuthentication
 from django.utils.decorators import method_decorator
-from .form import BlogForm, CommunityForm, ReferencesModelFormset, ReferencesForm
+from .form import BlogForm, CommunityForm, ReferencesForm
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect, render
 from django.shortcuts import Http404, HttpResponse
@@ -25,16 +25,18 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+def stafflogin_view(request):
+    context = {}
+    context['mobileForm'] = MobileForm
+    context['otpForm'] = OtpForm
+    return render(request, 'adminapp/login.html', context)
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def staffhome_view(request):
     context = {}
     context['response'] = _("response.success")
-    # context['blogForm'] = form.BlogForm
-    # context['referencesFormset'] = form.ReferencesModelFormset(queryset=References.objects.none())
-    # context['communityForm'] = form.CommunityForm
-    # context['referencesForm'] = form.ReferencesForm
-    # context['fullname'] = request.user.first_name + "asdf " + request.user.last_name
     return render(request, "adminapp/home.html", context)
 
 
@@ -87,7 +89,7 @@ class BlogUpdateView(generic.UpdateView):
     model = Blog
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "adminapp/pages/managers/update-job/update-form.html"
-    success_url = reverse_lazy('personal:show_blog')
+    success_url = reverse_lazy('personal:blog_manager')
     form_class = BlogForm
 
     def post(self, request, *args, **kwargs):
@@ -103,7 +105,7 @@ class BlogUpdateView(generic.UpdateView):
 class BlogDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
     model = Blog
-    success_url = reverse_lazy('personal:show_blog')
+    success_url = reverse_lazy('personal:blog_manager')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
 
 
@@ -129,7 +131,7 @@ class CommunityUpdateView(generic.UpdateView):
     model = Communities
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "adminapp/pages/managers/update-job/update-form.html"
-    success_url = reverse_lazy('personal:show_community')
+    success_url = reverse_lazy('personal:community_manager')
     form_class = CommunityForm
 
     def post(self, request, *args, **kwargs):
@@ -145,7 +147,7 @@ class CommunityUpdateView(generic.UpdateView):
 class CommunityDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
     model = Communities
-    success_url = reverse_lazy('personal:show_community')
+    success_url = reverse_lazy('personal:community_manager')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
 
 
@@ -221,13 +223,6 @@ class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
         return qs
 
 
-def stafflogin_view(request):
-    context = {}
-    context['mobileForm'] = MobileForm
-    context['otpForm'] = OtpForm
-    return render(request, 'adminapp/login.html', context)
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def uploadblog(request):
@@ -252,7 +247,7 @@ def uploadreferences(request):
 
 
 @api_view(['POST'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def uploadcommunity(request):
     community_form = CommunityForm(request.POST, request.FILES)
     if community_form.is_valid():
@@ -266,8 +261,13 @@ def uploadcommunity(request):
 def stafflogout(request):
 
     request.auth.delete()
-
-    return redirect(reverse("personal:staff_login"))
+    response = redirect(reverse("personal:staff_login"))
+    path = reverse("personal:staff_login")
+    # Resolve Cookie Delete for User - Current issue is cross domain, make domain dynamic
+    path = path[:-1]    # To remove last '/' from 'api/personal/' for cookie path
+    response.delete_cookie("Authorization", domain="127.0.0.1", path=path)
+    response.delete_cookie("User", domain="127.0.0.1", path=path)
+    return response
 
 
 @api_view(['GET'])
