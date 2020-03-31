@@ -45,6 +45,32 @@ class Blog(models.Model):
         return self.title
 
 
+class BlogHistory(models.Model):
+    CHOICES = (
+        ('C', 'Create'),
+        ('U', 'Update'),
+        ('D', 'Delete'),
+    )
+
+    blogid = models.CharField(max_length=10, null=False, blank=False)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    job = models.CharField(max_length=15, choices=CHOICES)
+
+
+class ReferenceHistory(models.Model):
+    CHOICES = (
+        ('C', 'Create'),
+        ('U', 'Update'),
+        ('D', 'Delete'),
+    )
+
+    referenceid = models.CharField(max_length=10, null=False, blank=False)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    job = models.CharField(max_length=15, choices=CHOICES)
+
+
 class Comment(models.Model):
     comment = models.CharField(max_length=300, null=False, blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)

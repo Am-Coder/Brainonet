@@ -29,6 +29,19 @@ class Communities(models.Model):
         return self.name
 
 
+class CommunityHistory(models.Model):
+    CHOICES = (
+        ('C', 'Create'),
+        ('U', 'Update'),
+        ('D', 'Delete'),
+    )
+
+    communityid = models.CharField(max_length=10, null=False, blank=False)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    job = models.CharField(max_length=15, choices=CHOICES)
+
+
 class CommunitySubscribers(models.Model):
     community = models.ForeignKey(Communities, on_delete=models.CASCADE)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)

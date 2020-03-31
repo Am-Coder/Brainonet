@@ -1,13 +1,13 @@
 from django.views import generic
 from personal.api import form
-from blog.models import Blog, References
-from communities.models import Communities
+from blog.models import Blog, References, BlogHistory, ReferenceHistory
+from communities.models import Communities, CommunityHistory
 from account.models import TokenAuthentication
-from django.utils.decorators import method_decorator
 from .form import BlogForm, CommunityForm, ReferencesForm
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect, render
 from django.shortcuts import Http404, HttpResponse
+from django.http import HttpResponseRedirect
 from account.models import Account, Token
 from dal import autocomplete
 from account.api.form import MobileForm, OtpForm
@@ -94,12 +94,17 @@ class BlogUpdateView(generic.UpdateView):
 
     def post(self, request, *args, **kwargs):
         token = get_token_from_cookie(request)
-        print(token)
         try:
-            Token.objects.get(key=token)
+            token = Token.objects.get(key=token)
+            request.user = token.user
             return super(BlogUpdateView, self).post(request, **kwargs)
         except Token.DoesNotExist:
             return HttpResponse("response.401", status=401)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        BlogHistory(blogid=self.object.pk, user=self.request.user, job='U').save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class BlogDeleteView(generic.DeleteView, APIView):
@@ -107,6 +112,14 @@ class BlogDeleteView(generic.DeleteView, APIView):
     model = Blog
     success_url = reverse_lazy('personal:blog_manager')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+
+    def delete(self, request, *args, **kwargs):
+        # self.object = form.save()
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        BlogHistory(blogid=self.object.pk, user=self.request.user, job='D').save()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
 
 
 class CommunityHomeView(generic.ListView, APIView):
@@ -136,12 +149,17 @@ class CommunityUpdateView(generic.UpdateView):
 
     def post(self, request, *args, **kwargs):
         token = get_token_from_cookie(request)
-        print(token)
         try:
-            Token.objects.get(key=token)
+            token = Token.objects.get(key=token)
+            request.user = token.user
             return super(CommunityUpdateView, self).post(request, **kwargs)
         except Token.DoesNotExist:
             return HttpResponse("response.401", status=401)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        CommunityHistory(communityid=self.object.pk, user=self.request.user, job='U').save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class CommunityDeleteView(generic.DeleteView, APIView):
@@ -149,6 +167,14 @@ class CommunityDeleteView(generic.DeleteView, APIView):
     model = Communities
     success_url = reverse_lazy('personal:community_manager')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+
+    def delete(self, request, *args, **kwargs):
+        # self.object = form.save()
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        CommunityHistory(communityid=self.object.pk, user=self.request.user, job='D').save()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
 
 
 class ReferenceUpdateView(generic.UpdateView):
@@ -161,12 +187,17 @@ class ReferenceUpdateView(generic.UpdateView):
 
     def post(self, request, *args, **kwargs):
         token = get_token_from_cookie(request)
-        print(token)
         try:
-            Token.objects.get(key=token)
+            token = Token.objects.get(key=token)
+            request.user = token.user
             return super(ReferenceUpdateView, self).post(request, **kwargs)
         except Token.DoesNotExist:
             return HttpResponse("response.401", status=401)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        ReferenceHistory(referenceid=self.object.pk, user=self.request.user, job='U').save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class ReferenceDeleteView(generic.DeleteView, APIView):
@@ -174,6 +205,14 @@ class ReferenceDeleteView(generic.DeleteView, APIView):
     model = References
     success_url = reverse_lazy('personal:reference_manager')
     template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+
+    def delete(self, request, *args, **kwargs):
+        # self.object = form.save()
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        ReferenceHistory(referenceid=self.object.pk, user=self.request.user, job='D').save()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
 
 
 class UserListView(generic.ListView, APIView):
@@ -229,7 +268,8 @@ def uploadblog(request):
     print(request.FILES)
     blog_form = BlogForm(request.POST, request.FILES)
     if blog_form.is_valid():
-        blog_form.save()
+        blog = blog_form.save()
+        BlogHistory(blogid=blog.pk, user=request.user, job="C").save()
         return redirect(reverse("personal:staff_home"))
     print(blog_form.errors)
     return HttpResponse(_("msg.upload.error"))
@@ -240,9 +280,11 @@ def uploadblog(request):
 def uploadreferences(request):
     reference_form = form.ReferencesForm(request.POST)
     if reference_form.is_valid():
-        References.objects.get_or_create(**reference_form.cleaned_data)
+        reference = reference_form.save()
+        # reference = References.objects.get_or_create(**reference_form.cleaned_data)
+        ReferenceHistory(referenceid=reference.pk, user=request.user, job="C").save()
         return redirect(reverse("personal:staff_home"))
-    print(reference_form.errors)
+    logger.error(reference_form.errors)
     return HttpResponse(_("msg.upload.error"))
 
 
@@ -251,7 +293,8 @@ def uploadreferences(request):
 def uploadcommunity(request):
     community_form = CommunityForm(request.POST, request.FILES)
     if community_form.is_valid():
-        community_form.save()
+        community = community_form.save()
+        CommunityHistory(communityid=community.pk, user=request.user, job="C").save()
         return redirect(reverse("personal:staff_home"))
     return HttpResponse(_("msg.upload.error"))
 
@@ -259,14 +302,16 @@ def uploadcommunity(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def stafflogout(request):
-
     request.auth.delete()
     response = redirect(reverse("personal:staff_login"))
     path = reverse("personal:staff_login")
-    # Resolve Cookie Delete for User - Current issue is cross domain, make domain dynamic
+    # Resolve Cookie Delete for User - Current issue is cross domain, make domain dynamic, check in Production
     path = path[:-1]    # To remove last '/' from 'api/personal/' for cookie path
-    response.delete_cookie("Authorization", domain="127.0.0.1", path=path)
-    response.delete_cookie("User", domain="127.0.0.1", path=path)
+    domain = str.split(request.get_host(), ':')[0]
+    logger.info("Logging out, Cookie Domain is " + domain)
+    logger.info("Logging out, Cookie Path is " + path)
+    response.delete_cookie("Authorization", domain=domain, path=path)
+    response.delete_cookie("User", domain=domain, path=path)
     return response
 
 
