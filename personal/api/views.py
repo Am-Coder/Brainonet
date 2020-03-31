@@ -67,21 +67,16 @@ def reference_manager_view(request):
     return render(request, "adminapp/pages/managers/reference-manager.html", context)
 
 
-class BlogHomeView(generic.ListView, APIView):
+class BlogHistoryView(generic.ListView, APIView):
     permission_classes = [IsAuthenticated]
     model = Blog
-    template_name = "adminapp/pages/managers/update-job/blog-update.html"
-    context_object_name = "blogCollection"
+    template_name = "adminapp/pages/managers/update-job/content-history.html"
+    context_object_name = "changeCollection"
     paginate_by = 10
-    # queryset = Blog.objects.all()
 
     def get_queryset(self):
-        if self.request.GET.get('filter_title'):
-            title = self.request.GET.get('filter_title')
-            blog = Blog.objects.filter(title__contains=title)
-        else:
-            blog = Blog.objects.all()
-        return blog
+        history = BlogHistory.objects.filter(blogid=self.kwargs['slug'])
+        return history
 
 
 class BlogUpdateView(generic.UpdateView):
@@ -103,7 +98,7 @@ class BlogUpdateView(generic.UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        BlogHistory(blogid=self.object.pk, user=self.request.user, job='U').save()
+        BlogHistory(blogid=self.object.slug, user=self.request.user, job='U').save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -117,26 +112,21 @@ class BlogDeleteView(generic.DeleteView, APIView):
         # self.object = form.save()
         self.object = self.get_object()
         success_url = self.get_success_url()
-        BlogHistory(blogid=self.object.pk, user=self.request.user, job='D').save()
+        BlogHistory(blogid=self.object.slug, user=self.request.user, job='D').save()
         self.object.delete()
         return HttpResponseRedirect(success_url)
 
 
-class CommunityHomeView(generic.ListView, APIView):
+class CommunityHistoryView(generic.ListView, APIView):
     permission_classes = [IsAuthenticated]
     model = Communities
-    template_name = "adminapp/pages/managers/update-job/community-update.html"
-    context_object_name = "communityCollection"
+    template_name = "adminapp/pages/managers/update-job/content-history.html"
+    context_object_name = "changeCollection"
     paginate_by = 10
-    # queryset = Blog.objects.all()
 
     def get_queryset(self):
-        if self.request.GET.get('filter_name'):
-            name = self.request.GET.get('filter_name')
-            community = Communities.objects.filter(name__contains=name)
-        else:
-            community = Communities.objects.all()
-        return community
+        history = CommunityHistory.objects.filter(communityid=self.kwargs['slug'])
+        return history
 
 
 class CommunityUpdateView(generic.UpdateView):
@@ -158,7 +148,7 @@ class CommunityUpdateView(generic.UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        CommunityHistory(communityid=self.object.pk, user=self.request.user, job='U').save()
+        CommunityHistory(communityid=self.object.slug, user=self.request.user, job='U').save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -172,9 +162,21 @@ class CommunityDeleteView(generic.DeleteView, APIView):
         # self.object = form.save()
         self.object = self.get_object()
         success_url = self.get_success_url()
-        CommunityHistory(communityid=self.object.pk, user=self.request.user, job='D').save()
+        CommunityHistory(communityid=self.object.slug, user=self.request.user, job='D').save()
         self.object.delete()
         return HttpResponseRedirect(success_url)
+
+
+class ReferenceHistoryView(generic.ListView, APIView):
+    permission_classes = [IsAuthenticated]
+    model = References
+    template_name = "adminapp/pages/managers/update-job/content-history.html"
+    context_object_name = "changeCollection"
+    paginate_by = 10
+
+    def get_queryset(self):
+        history = ReferenceHistory.objects.filter(referenceid=self.kwargs['pk'])
+        return history
 
 
 class ReferenceUpdateView(generic.UpdateView):
@@ -269,8 +271,8 @@ def uploadblog(request):
     blog_form = BlogForm(request.POST, request.FILES)
     if blog_form.is_valid():
         blog = blog_form.save()
-        BlogHistory(blogid=blog.pk, user=request.user, job="C").save()
-        return redirect(reverse("personal:staff_home"))
+        BlogHistory(blogid=blog.slug, user=request.user, job="C").save()
+        return redirect(reverse("personal:blog_manager"))
     print(blog_form.errors)
     return HttpResponse(_("msg.upload.error"))
 
@@ -283,7 +285,7 @@ def uploadreferences(request):
         reference = reference_form.save()
         # reference = References.objects.get_or_create(**reference_form.cleaned_data)
         ReferenceHistory(referenceid=reference.pk, user=request.user, job="C").save()
-        return redirect(reverse("personal:staff_home"))
+        return redirect(reverse("personal:reference_manager"))
     logger.error(reference_form.errors)
     return HttpResponse(_("msg.upload.error"))
 
@@ -294,8 +296,8 @@ def uploadcommunity(request):
     community_form = CommunityForm(request.POST, request.FILES)
     if community_form.is_valid():
         community = community_form.save()
-        CommunityHistory(communityid=community.pk, user=request.user, job="C").save()
-        return redirect(reverse("personal:staff_home"))
+        CommunityHistory(communityid=community.slug, user=request.user, job="C").save()
+        return redirect(reverse("personal:community_manager"))
     return HttpResponse(_("msg.upload.error"))
 
 

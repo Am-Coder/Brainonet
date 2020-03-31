@@ -29,6 +29,10 @@ urlpatterns = [
     re_path(r"staffhome/editreference/(?P<pk>[\w-]+)/", ReferenceUpdateView.as_view(), name="edit_reference"),
     re_path(r"staffhome/deletereference/(?P<pk>[\w-]+)/", ReferenceDeleteView.as_view(), name="delete_reference"),
 
+    re_path(r"staffhome/communityhistory/(?P<slug>[\w-]+)/", CommunityHistoryView.as_view(), name="community_history"),
+    re_path(r"staffhome/bloghistory/(?P<slug>[\w-]+)/", BlogHistoryView.as_view(), name="blog_history"),
+    re_path(r"staffhome/referencehistory/(?P<pk>[\w-]+)/", ReferenceHistoryView.as_view(), name="reference_history"),
+
     re_path(r"staffhome/logout", stafflogout, name="staff_logout"),
     re_path(r"^staffhome/users_autocomplete/$", UsersAutocomplete.as_view(), name="users_autocomplete"),
     re_path(r"^staffhome/references_autocomplete/$", ReferencesAutocomplete.as_view(create_field='refers'),

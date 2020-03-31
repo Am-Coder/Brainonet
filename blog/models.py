@@ -52,7 +52,7 @@ class BlogHistory(models.Model):
         ('D', 'Delete'),
     )
 
-    blogid = models.CharField(max_length=10, null=False, blank=False)
+    blogid = models.CharField(max_length=30, null=False, blank=False)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     job = models.CharField(max_length=15, choices=CHOICES)
@@ -65,7 +65,7 @@ class ReferenceHistory(models.Model):
         ('D', 'Delete'),
     )
 
-    referenceid = models.CharField(max_length=10, null=False, blank=False)
+    referenceid = models.CharField(max_length=30, null=False, blank=False)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     job = models.CharField(max_length=15, choices=CHOICES)

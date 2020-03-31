@@ -36,7 +36,7 @@ class CommunityHistory(models.Model):
         ('D', 'Delete'),
     )
 
-    communityid = models.CharField(max_length=10, null=False, blank=False)
+    communityid = models.CharField(max_length=30, null=False, blank=False)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     job = models.CharField(max_length=15, choices=CHOICES)
