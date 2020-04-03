@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-16 23:54+0000\n"
+"POT-Creation-Date: 2020-04-03 10:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,53 +18,54 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: account/api/views.py:41 account/api/views.py:82 account/api/views.py:86
-#: account/api/views.py:91 account/api/views.py:119 account/api/views.py:123
-#: account/api/views.py:142 blog/api/views.py:122 blog/api/views.py:125
-#: blog/api/views.py:129 blog/api/views.py:144 blog/api/views.py:172
-#: blog/api/views.py:191 communities/api/views.py:120
-#: communities/api/views.py:139 groupchat/api/views.py:46
-#: personal/api/views.py:216
+#: account/api/views.py:43 account/api/views.py:113 account/api/views.py:117
+#: account/api/views.py:122 account/api/views.py:150 account/api/views.py:154
+#: account/api/views.py:173 blog/api/views.py:118 blog/api/views.py:121
+#: blog/api/views.py:125 blog/api/views.py:140 blog/api/views.py:168
+#: blog/api/views.py:187 communities/api/views.py:117
+#: communities/api/views.py:136 groupchat/api/views.py:46
+#: personal/api/views.py:347
 msgid "response.error"
 msgstr "error"
 
-#: account/api/views.py:42
+#: account/api/views.py:44
 msgid "msg.account.otp.not.send"
 msgstr "OTP could not be send, Please try again later"
 
-#: account/api/views.py:70 account/api/views.py:78 account/api/views.py:138
-#: blog/api/views.py:48 blog/api/views.py:75 blog/api/views.py:90
-#: blog/api/views.py:116 blog/api/views.py:142 blog/api/views.py:159
-#: blog/api/views.py:185 blog/api/views.py:188 communities/api/views.py:46
-#: communities/api/views.py:76 communities/api/views.py:91
-#: communities/api/views.py:117 communities/api/views.py:132
-#: expose/api/views.py:72 expose/api/views.py:87 groupchat/api/views.py:40
-#: personal/api/views.py:33 personal/api/views.py:108 personal/api/views.py:193
-#: personal/api/views.py:213
+#: account/api/views.py:100 account/api/views.py:109 account/api/views.py:169
+#: blog/api/views.py:44 blog/api/views.py:71 blog/api/views.py:86
+#: blog/api/views.py:112 blog/api/views.py:138 blog/api/views.py:155
+#: blog/api/views.py:181 blog/api/views.py:184 communities/api/views.py:43
+#: communities/api/views.py:73 communities/api/views.py:88
+#: communities/api/views.py:114 communities/api/views.py:129
+#: expose/api/views.py:68 expose/api/views.py:83 groupchat/api/views.py:40
+#: personal/api/views.py:39 personal/api/views.py:47 personal/api/views.py:56
+#: personal/api/views.py:65 personal/api/views.py:234 personal/api/views.py:325
+#: personal/api/views.py:344
 msgid "response.success"
 msgstr "success"
 
-#: account/api/views.py:83 account/api/views.py:124 account/api/views.py:143
+#: account/api/views.py:114 account/api/views.py:155 account/api/views.py:174
 msgid "msg.account.token.expired"
 msgstr "Authentication Token Expired"
 
-#: account/api/views.py:87
+#: account/api/views.py:118
 msgid "msg.account.otp.invalid"
 msgstr "Invalid OTP found"
 
-#: account/api/views.py:92
+#: account/api/views.py:123
 msgid "msg.account.otp.expired"
 msgstr "OTP expired"
 
-#: account/api/views.py:115
+#: account/api/views.py:146
 msgid "msg.welcome"
 msgstr "Welcome to Brainonet"
 
-#: account/api/views.py:120 blog/api/views.py:126
+#: account/api/views.py:151 blog/api/views.py:122
 msgid "msg.account.not.found"
 msgstr "Account Does Not Exist"
 
-#: account/api/views.py:139
+#: account/api/views.py:170
 msgid "msg.account.logout.success"
 msgstr "Log Out Successful"
 
@@ -76,12 +77,12 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: blog/api/views.py:123 blog/api/views.py:145 blog/api/views.py:173
-#: blog/api/views.py:192
+#: blog/api/views.py:119 blog/api/views.py:141 blog/api/views.py:169
+#: blog/api/views.py:188
 msgid "msg.blog.not.found"
 msgstr "No Such Blog Exists"
 
-#: communities/api/views.py:121 communities/api/views.py:140
+#: communities/api/views.py:118 communities/api/views.py:137
 msgid "msg.community.not.found"
 msgstr "No Such Community Exists"
 
@@ -89,23 +90,43 @@ msgstr "No Such Community Exists"
 msgid "msg.pageindex.out.of.bound"
 msgstr "Page Index Out of Bounds"
 
-#: mysite/settings.py:165
+#: mysite/settings.py:171
 msgid "English"
 msgstr ""
 
-#: mysite/settings.py:166
+#: mysite/settings.py:172
 msgid "French"
 msgstr ""
 
-#: personal/api/views.py:157 personal/api/views.py:167
-#: personal/api/views.py:177
+#: personal/api/views.py:278 personal/api/views.py:291
+#: personal/api/views.py:302
 msgid "msg.upload.error"
 msgstr "Upload Failed"
 
-#: personal/api/views.py:217
+#: personal/api/views.py:348
 msgid "msg.personal.fake.imagesearch.not.found"
 msgstr "No Results Found"
 
-#: personal/api/views.py:238
+#: personal/api/views.py:369
 msgid "msg.personal.fake.imagesearch.dataset.error"
 msgstr "Problem Creating Dataset"
+
+#: personal/api/views.py:377
+msgid "msg.error.500"
+msgstr "We are currently unable to handle your request. You can try reloading or come back later"
+
+#: personal/api/views.py:384
+msgid "msg.error.400"
+msgstr "Bad Request"
+
+#: personal/api/views.py:391
+msgid "msg.error.403"
+msgstr "Forbidden"
+
+#: personal/api/views.py:398
+msgid "msg.error.404"
+msgstr "The page you’re looking for was not found."
+
+#: personal/api/views.py:405
+msgid "msg.error.401"
+msgstr "Unauthorized"
