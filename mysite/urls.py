@@ -19,6 +19,8 @@ from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.conf.urls import handler400, handler403, handler404, handler500
+from personal.api import views as personal_views
 
 
 
@@ -38,6 +40,11 @@ urlpatterns = [
     # re_path(r'^select2/', include('django_select2.urls')),
 
 ]
+
+handler400 = personal_views.error_400
+handler404 = personal_views.error_404
+handler403 = personal_views.error_403
+handler500 = personal_views.error_500
 
 
 if settings.DEBUG:
