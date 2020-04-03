@@ -218,7 +218,6 @@ class ReferenceDeleteView(generic.DeleteView, APIView):
 
 
 class UserListView(generic.ListView, APIView):
-
     permission_classes = [IsAuthenticated]
     model = Account
     template_name = "admin/pages/managers/user-manager.html"
@@ -240,6 +239,7 @@ class UserListView(generic.ListView, APIView):
 class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
         #     return References.objects.none()
@@ -253,6 +253,7 @@ class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
 class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
     def get_queryset(self):
         # if not self.request.user.is_authenticated():
         #     return References.objects.none()
@@ -308,7 +309,7 @@ def stafflogout(request):
     response = redirect(reverse("personal:staff_login"))
     path = reverse("personal:staff_login")
     # Resolve Cookie Delete for User - Current issue is cross domain, make domain dynamic, check in Production
-    path = path[:-1]    # To remove last '/' from 'api/personal/' for cookie path
+    path = path[:-1]  # To remove last '/' from 'api/personal/' for cookie path
     domain = str.split(request.get_host(), ':')[0]
     logger.info("Logging out, Cookie Domain is " + domain)
     logger.info("Logging out, Cookie Path is " + path)
@@ -369,6 +370,27 @@ def fakenews_image_dataset(request):
         return render(request, 'admin/pages/faketools/fake-image-search.html', context)
 
 
+# error views
+def error_500(request, template_name="admin/pages/errors/error-500.html"):
+    data = {}
+    return render(request, template_name, data)
+
+
+def error_400(request, exception, template_name="admin/pages/errors/error-404.html"):
+    data = {}
+    return render(request, template_name, data)
+
+
+def error_403(request, exception, template_name="admin/pages/errors/error-404.html"):
+    data = {}
+    return render(request, template_name, data)
+
+
+def error_404(request, exception, template_name="admin/pages/errors/error-404.html"):
+    data = {}
+    return render(request, template_name, data)
+
+
 # Utility Functions
 def get_opencv_img_from_buffer(buffer, flags=-1):
     bytes_as_np_array = np.frombuffer(buffer.read(), dtype=np.uint8)
@@ -380,4 +402,3 @@ def get_token_from_cookie(request):
     if token:
         token = token.replace("Token%20", "")
     return token
-
