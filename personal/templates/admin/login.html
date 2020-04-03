@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Brainonet</title>
+    <!-- plugins:css -->
+    {% load staticfiles %}
+      <link rel="stylesheet" href="{% static 'assets/vendors/mdi/css/materialdesignicons.min.css' %}">
+      <link rel="stylesheet" href="{% static 'assets/vendors/css/vendor.bundle.base.css' %}">
+      <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+      <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" />
+
+    {% load widget_tweaks %}
+  </head>
+  <body>
+
+    <div class="container-scroller">
+      <div class="container-fluid page-body-wrapper full-page-wrapper">
+        <div class="content-wrapper d-flex align-items-center auth">
+          <div class="row flex-grow">
+            <div class="col-lg-4 mx-auto">
+              <div class="auth-form-light text-left p-5">
+                <div class="brand-logo">
+                  <img src="{% static 'assets/images/logo.svg' %}">
+                </div>
+                <h4><span id="msg">Hello! let's get started</span></h4>
+                <h6 class="font-weight-light">Sign in to continue.</h6>
+
+<!--                Otp Generator Form-->
+              <div id="mobileFormContainer">
+
+                <form class="pt-3" id="mobileForm">
+                {% for field in mobileForm.visible_fields %}
+                  <div class="form-group">
+                      {{ field.label_tag }}
+                      {% render_field field class="form-control form-control-lg" %}
+                  </div>
+                {% endfor %}
+                  <button type="submit" class="btn btn-primary">SIGN IN</button>
+
+                  <div class="text-center mt-4 font-weight-light"> Don't have an account? <a href="#" class="text-primary">Contact here</a>
+                  </div>
+                </form>
+              </div>
+
+<!--                Otp Verification Form-->
+              <div id="otpFormContainer" style="display: none">
+
+                <form class="pt-3" id="otpForm">
+                {% for field in otpForm.visible_fields %}
+                  <div class="form-group">
+                      {{ field.label_tag }}
+                      {% render_field field class="form-control form-control-lg" %}
+                  </div>
+                {% endfor %}
+
+                  <div class="btn-group-sm">
+                    <button type="submit" class="btn btn-primary">Verify</button>
+                    <button class="btn btn-primary" id="resendOTP">Resend OTP</button>
+                  </div>
+
+                  <div class="my-2 d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                      <label class="form-check-label text-muted">
+                        <input type="checkbox" class="form-check-input" id="keep"> Keep me signed in </label>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+<!--              On Success Submit  -->
+              <div id="staffHomeContainer" style="display: none">
+                  <form method="get" id="staffHomeForm" action="{% url 'personal:staff_home' %}">
+                      {% csrf_token %}
+
+                  </form>
+              </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- content-wrapper ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    {% load staticfiles %}
+    <script src="{% static 'assets/vendors/js/vendor.bundle.base.js' %}"></script>
+    <script src="{% static 'assets/js/off-canvas.js' %}"></script>
+    <script src="{% static 'assets/js/hoverable-collapse.js' %}"></script>
+    <script src="{% static 'assets/js/misc.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <!-- endinject -->
+
+
+<!--    Script for OTP generation and verification-->
+    <script>
+
+      $(document).ready(() => {
+          console.log($.cookie("Authorization"));
+          console.log($.cookie('User'));
+
+          if( $.cookie("Authorization") && $.cookie('User') ){
+            $("#staffHomeForm").submit();
+          }
+
+
+          $("#mobileForm").on("submit", (event) =>{
+              console.log($("#id_number").val());
+              event.preventDefault();
+
+              $.ajax({
+                  type:"POST",
+                  cache:"false",
+                  contentType : "application/json",//type of data being send to server
+                  url:"{% url 'account:get_otp' %}",
+                  data : JSON.stringify({number: $("#id_number").val()}),
+                  // dataType : "json",//result expected from server
+                  //                 //with json return type we can return java objects
+                  //                 //With text we can return String from java conroller
+                  timeout:100000,
+                  success:function(data){
+                      console.log(data);
+
+                      if( data['response'] === 'success' ){
+                          $("#otpFormContainer").show();
+                          $("#mobileFormContainer").hide();
+                          $("#msg").text("Check Your Mobile for OTP");
+                      }
+                      else {
+                          $("#msg").text(data['error_message']);
+
+
+                      }
+                  },
+                  error: function(e){
+                      $("#msg").text("Some problem occured, Please retry");
+                      console.log(e);
+                  },
+
+              });
+          });
+
+          $("#otpForm").submit((event) => {
+
+              event.preventDefault();
+
+              $.ajax({
+
+                  type:"POST",
+                  cache:"false",
+                  url:"{% url 'account:auth_otp' %}",
+                  timeout:100000,
+                  contentType : "application/json",//type of data being send to server
+                  data : JSON.stringify({mobile_number: $("#id_number").val(), otp: $("#id_otp").val()}),
+
+                  success:function(data){
+                      console.log(data);
+                      if(data["response"] === "success") {
+                          console.log(data['token'].trim());
+                          if( $('#keep').is(':checked') ){
+
+                          $.cookie('Authorization', "Token ".concat(data['token'].trim()),
+                                  { expires: 14 });
+                          $.cookie('User', data['username'].trim(), { expires: 14 });
+                          } else {
+                            $.cookie('Authorization', "Token ".concat(data['token'].trim()));
+                            $.cookie('User', data['username'].trim());
+                          }
+                          $("#staffHomeForm").submit();
+
+                      } else{
+                          $("#msg").text(data["error_message"]);
+                      }
+
+
+                  },
+                  error: function(e){
+                      console.log(e);
+                  },
+
+              });
+          });
+
+          $("#resendOTP").click(() => {
+              $("#otpFormContainer").hide();
+              $("#mobileFormContainer").show();
+          })
+      });
+
+    </script>
+
+  </body>
+</html>

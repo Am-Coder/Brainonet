@@ -1,0 +1,146 @@
+{% extends "adminapp/base.html" %}
+{% block panel_block %}
+    {% load widget_tweaks %}
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <div class="btn-group-sm">
+                    <button class="btn btn-light mr-2" id="add">Add</button>
+                    <button class="btn btn-light mr-2" id="update">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-blog">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Blog</h4>
+                <p class="card-description"> Add </p>
+                <form class="forms-sample" method="post" enctype="multipart/form-data" action="{% url 'personal:add_blog' %}">
+                    {% csrf_token %}
+                    {% for field in blogForm.visible_fields %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {% render_field field class="form-control" %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-gradient-primary mr-2">Submit</button>
+                    <button class="btn btn-light">Cancel</button>
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="update-blog" style="display: none">
+        <div class="col-12 grid-margin">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-bar">
+                        <form class="d-flex align-items-center h-100" method="get" id="blog-search">
+                          <div class="input-group">
+                            <div class="input-group-prepend bg-transparent">
+                              <i class="input-group-text border-0 mdi mdi-magnify"></i>
+                            </div>
+                            <input type="text" name="search" class="form-control bg-transparent border-0" placeholder="Give title or description of blog">
+                          </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="blogcontainer">
+                <div class="row">
+
+                </div>
+                <div class="btn-group-sm" >
+                    <button class="btn btn-light" id="prev-page" disabled>&laquo;</button>
+                    <button class="btn btn-light" id="next-page" disabled>&raquo;</button>
+                </div>
+        </div>
+
+
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+
+    {{ blogForm.media }}
+{% endblock %}
+
+{% block custom_scripts %}
+    <script>
+        "use strict";
+
+        function send_request(search){
+
+            $.get(search, (data) => {
+                let container = document.getElementsByClassName("row")[0];
+                container.innerHTML = "";
+                console.log(data);
+                for(var i in data.results ) {
+                    let blog = data.results[i];
+                    let item = document.createElement("div");
+                    item.setAttribute("class","card");
+                    item.setAttribute("style","width: 18rem; margin: 1rem");
+                    item.innerHTML  = '<img src="'+blog.image+'" style="width:100%" class="card-img-top">'+
+                                    '<div class="card-body">'+
+                                    '<h4 class="card-title">'+blog.title+'</h4>'+
+                                    '<p class="card-text">' + blog.description +'</p>'+
+                                    // Try to make these urls dynamic
+                                    '<a href= "api/personal/staffhome/editblog/'+blog.slug+'" class="card-link"><i class="mdi mdi-lead-pencil mdi-24px"></i></a>'+
+                                    '<a href="api/personal/staffhome/deleteblog/'+blog.slug+'" class="card-link"><i class="mdi mdi-delete mdi-24px"></i></a>'+
+                                    '<a href="api/personal/staffhome/bloghistory/'+blog.slug+'" class="card-link"><i class="mdi mdi-history mdi-24px"></i></a>'+
+                                    '</div>';
+                    container.appendChild(item);
+
+                }
+                if( data.next ){
+                    $("#next-page").prop('disabled', false);
+                    $("#next-page").unbind("click");
+                    $("#next-page").click((event) => {
+                        send_request(data.next);
+                    });
+                }else{
+                    $("#next-page").prop('disabled', true);
+                }
+
+                if( data.previous ){
+                    $("#prev-page").prop('disabled', false);
+                    $("#prev-page").unbind("click");
+                    $("#prev-page").click((event) => {
+                        send_request(data.previous);
+                    });
+                }else {
+                    $("#prev-page").prop('disabled', true);
+                }
+            });
+        }
+
+        $( () => {
+            $.ajaxSetup({xhrFields: { withCredentials: true } });
+            let page = 1;
+
+            $("#add").click(() => {
+                 $(".add-blog").show();
+                 $(".update-blog").hide();
+            });
+            $("#update").click(() => {
+                 $(".add-blog").hide();
+                 $(".update-blog").show();
+            });
+
+
+            $("#blog-search").submit((event) => {
+                event.preventDefault();
+                let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
+                send_request(search);
+            })
+        })
+
+    </script>
+{% endblock %}

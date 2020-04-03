@@ -1,0 +1,49 @@
+{% extends "adminapp/base.html" %}
+{% block panel_block %}
+    {% load widget_tweaks %}
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Search Related Images</h4>
+            <p class="card-description"> Image </p>
+            <form class="forms-sample" method="post" enctype="multipart/form-data" action="{% url 'personal:fake_image_search' %}">
+                {% csrf_token %}
+                {% for field in imageForm.visible_fields %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {% render_field field class="form-control" %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-gradient-primary mr-2">Search</button>
+                <a class="btn btn-gradient-primary mr-2" href="{% url 'personal:fake_image_dataset' %}">Update Dataset </a>
+
+            </form>
+            <div class="text-danger text-capitalize"><h1>{{ error_message }}</h1></div>
+          </div>
+        </div>
+    </div>
+
+    <div class="result-container container">
+         <div class="row">
+        {% for i in results %}
+              <div class="col-md-3">
+                <div class="thumbnail">
+                  <a href="{{ i.1 }}">
+                    <img src="{{ i.1 }}" alt="Lights" style="width:100%">
+                    <div class="caption">
+                      <p>{{ i.0 }}</p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+        {% endfor %}
+         </div>
+    </div>
+
+{% endblock %}
+{% block footer %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+
+    {{ blogForm.media }}
+{% endblock %}

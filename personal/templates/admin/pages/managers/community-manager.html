@@ -1,0 +1,139 @@
+{% extends "adminapp/base.html" %}
+{% block panel_block %}
+    {% load widget_tweaks %}
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <div class="btn-group-sm">
+                    <button class="btn btn-light mr-2" id="add">Add</button>
+                    <button class="btn btn-light mr-2" id="update">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-community">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Community</h4>
+                <p class="card-description"> Add </p>
+                <form class="forms-sample" enctype="multipart/form-data" method="post" action="{% url 'personal:add_community' %}">
+                    {% csrf_token %}
+                    {% for field in communityForm.visible_fields %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {% render_field field class="form-control" %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-gradient-primary mr-2">Submit</button>
+                    <button class="btn btn-light">Cancel</button>
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="update-community" style="display: none">
+        <div class="col-12 grid-margin">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-bar">
+                        <form class="d-flex align-items-center h-100" method="get" id="community-search">
+                          <div class="input-group">
+                            <div class="input-group-prepend bg-transparent">
+                              <i class="input-group-text border-0 mdi mdi-magnify"></i>
+                            </div>
+                            <input type="text" name="search" class="form-control bg-transparent border-0" placeholder="Give name or description of community">
+                          </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="communitycontainer">
+                <div class="row">
+
+                </div>
+                <div class="btn-group-sm" >
+                    <button class="btn btn-light" id="prev-page" disabled>&laquo;</button>
+                    <button class="btn btn-light" id="next-page" disabled>&raquo;</button>
+                </div>
+        </div>
+
+
+    </div>
+{% endblock %}
+
+{% block custom_scripts %}
+    <script>
+        "use strict";
+
+        function send_request(search){
+
+            $.get(search, (data) => {
+                let container = document.getElementsByClassName("row")[0];
+                container.innerHTML = "";
+                console.log(data);
+                for(var i in data.results ) {
+                    let community = data.results[i];
+                    let item = document.createElement("div");
+                    item.setAttribute("class","card");
+                    item.setAttribute("style","width: 18rem; margin: 1rem");
+                    item.innerHTML  = '<img src="'+community.avatarimage+'" style="width:100%" class="card-img-top">'+
+                                    '<div class="card-body">'+
+                                    '<h4 class="card-title">'+community.name+'</h4>'+
+                                    '<p class="card-text">' + community.description +'</p>'+
+                                    // Try to make these urls dynamic
+                                    '<a href= "api/personal/staffhome/editcommunity/'+community.slug+'" class="card-link"><i class="mdi mdi-lead-pencil mdi-24px"></i></a>'+
+                                    '<a href="api/personal/staffhome/deletecommunity/'+community.slug+'" class="card-link"><i class="mdi mdi-delete mdi-24px"></i></a>'+
+                                    '<a href="api/personal/staffhome/communityhistory/'+community.slug+'" class="card-link"><i class="mdi mdi-history mdi-24px"></i></a>'+
+                                    '</div>';
+                    container.appendChild(item);
+
+                }
+                if( data.next ){
+                    $("#next-page").prop('disabled', false);
+                    $("#next-page").unbind("click");
+                    $("#next-page").click((event) => {
+                        send_request(data.next);
+                    });
+                }else{
+                    $("#next-page").prop('disabled', true);
+                }
+
+                if( data.previous ){
+                    $("#prev-page").prop('disabled', false);
+                    $("#prev-page").unbind("click");
+                    $("#prev-page").click((event) => {
+                        send_request(data.previous);
+                    });
+                }else {
+                    $("#prev-page").prop('disabled', true);
+                }
+            });
+        }
+
+        $( () => {
+            $.ajaxSetup({xhrFields: { withCredentials: true } });
+            let page = 1;
+
+            $("#add").click(() => {
+                 $(".add-community").show();
+                 $(".update-community").hide();
+            });
+            $("#update").click(() => {
+                 $(".add-community").hide();
+                 $(".update-community").show();
+            });
+
+
+            $("#community-search").submit((event) => {
+                event.preventDefault();
+                let search = "{% url 'personal:community-list' %}?page="+page+"&"+$("#community-search").serialize();
+                send_request(search);
+            })
+        })
+
+    </script>
+{% endblock %}

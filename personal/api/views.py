@@ -29,7 +29,7 @@ def stafflogin_view(request):
     context = {}
     context['mobileForm'] = MobileForm
     context['otpForm'] = OtpForm
-    return render(request, 'adminapp/login.html', context)
+    return render(request, 'admin/login.html', context)
 
 
 @api_view(["GET"])
@@ -37,7 +37,7 @@ def stafflogin_view(request):
 def staffhome_view(request):
     context = {}
     context['response'] = _("response.success")
-    return render(request, "adminapp/home.html", context)
+    return render(request, "admin/home.html", context)
 
 
 @api_view(["GET"])
@@ -46,7 +46,7 @@ def blog_manager_view(request):
     context = {}
     context['response'] = _("response.success")
     context['blogForm'] = form.BlogForm
-    return render(request, "adminapp/pages/managers/blog-manager.html", context)
+    return render(request, "admin/pages/managers/blog-manager.html", context)
 
 
 @api_view(["GET"])
@@ -55,7 +55,7 @@ def community_manager_view(request):
     context = {}
     context['response'] = _("response.success")
     context['communityForm'] = form.CommunityForm
-    return render(request, "adminapp/pages/managers/community-manager.html", context)
+    return render(request, "admin/pages/managers/community-manager.html", context)
 
 
 @api_view(["GET"])
@@ -64,13 +64,13 @@ def reference_manager_view(request):
     context = {}
     context['response'] = _("response.success")
     context['referenceForm'] = form.ReferencesForm
-    return render(request, "adminapp/pages/managers/reference-manager.html", context)
+    return render(request, "admin/pages/managers/reference-manager.html", context)
 
 
 class BlogHistoryView(generic.ListView, APIView):
     permission_classes = [IsAuthenticated]
     model = Blog
-    template_name = "adminapp/pages/managers/update-job/content-history.html"
+    template_name = "admin/pages/managers/update-job/content-history.html"
     context_object_name = "changeCollection"
     paginate_by = 10
 
@@ -83,7 +83,7 @@ class BlogUpdateView(generic.UpdateView):
     permission_classes = [IsAuthenticated]
     model = Blog
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
-    template_name = "adminapp/pages/managers/update-job/update-form.html"
+    template_name = "admin/pages/managers/update-job/update-form.html"
     success_url = reverse_lazy('personal:blog_manager')
     form_class = BlogForm
 
@@ -106,7 +106,7 @@ class BlogDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
     model = Blog
     success_url = reverse_lazy('personal:blog_manager')
-    template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+    template_name = "admin/pages/managers/update-job/confirm-delete.html"
 
     def delete(self, request, *args, **kwargs):
         # self.object = form.save()
@@ -120,7 +120,7 @@ class BlogDeleteView(generic.DeleteView, APIView):
 class CommunityHistoryView(generic.ListView, APIView):
     permission_classes = [IsAuthenticated]
     model = Communities
-    template_name = "adminapp/pages/managers/update-job/content-history.html"
+    template_name = "admin/pages/managers/update-job/content-history.html"
     context_object_name = "changeCollection"
     paginate_by = 10
 
@@ -133,7 +133,7 @@ class CommunityUpdateView(generic.UpdateView):
     permission_classes = [IsAuthenticated]
     model = Communities
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
-    template_name = "adminapp/pages/managers/update-job/update-form.html"
+    template_name = "admin/pages/managers/update-job/update-form.html"
     success_url = reverse_lazy('personal:community_manager')
     form_class = CommunityForm
 
@@ -156,7 +156,7 @@ class CommunityDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
     model = Communities
     success_url = reverse_lazy('personal:community_manager')
-    template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+    template_name = "admin/pages/managers/update-job/confirm-delete.html"
 
     def delete(self, request, *args, **kwargs):
         # self.object = form.save()
@@ -170,7 +170,7 @@ class CommunityDeleteView(generic.DeleteView, APIView):
 class ReferenceHistoryView(generic.ListView, APIView):
     permission_classes = [IsAuthenticated]
     model = References
-    template_name = "adminapp/pages/managers/update-job/content-history.html"
+    template_name = "admin/pages/managers/update-job/content-history.html"
     context_object_name = "changeCollection"
     paginate_by = 10
 
@@ -183,7 +183,7 @@ class ReferenceUpdateView(generic.UpdateView):
     permission_classes = [IsAuthenticated]
     model = References
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
-    template_name = "adminapp/pages/managers/update-job/update-form.html"
+    template_name = "admin/pages/managers/update-job/update-form.html"
     success_url = reverse_lazy('personal:reference_manager')
     form_class = ReferencesForm
 
@@ -206,7 +206,7 @@ class ReferenceDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
     model = References
     success_url = reverse_lazy('personal:reference_manager')
-    template_name = "adminapp/pages/managers/update-job/confirm-delete.html"
+    template_name = "admin/pages/managers/update-job/confirm-delete.html"
 
     def delete(self, request, *args, **kwargs):
         # self.object = form.save()
@@ -221,7 +221,7 @@ class UserListView(generic.ListView, APIView):
 
     permission_classes = [IsAuthenticated]
     model = Account
-    template_name = "adminapp/pages/managers/user-manager.html"
+    template_name = "admin/pages/managers/user-manager.html"
     context_object_name = "accountCollection"
     paginate_by = 10
     queryset = Account.objects.all()
@@ -323,7 +323,7 @@ def fakenews_home(request):
     context = {}
     context['response'] = _("response.success")
     context['imageForm'] = form.ImageSearchForm
-    return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
+    return render(request, 'admin/pages/faketools/fake-image-search.html', context)
 
 
 @api_view(['POST'])
@@ -349,7 +349,7 @@ def fakenews_image_search(request):
         logger.warning("Form Invalid")
 
     context['imageForm'] = form.ImageSearchForm
-    return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
+    return render(request, 'admin/pages/faketools/fake-image-search.html', context)
 
 
 @api_view(['GET'])
@@ -361,12 +361,12 @@ def fakenews_image_dataset(request):
 
     try:
         createdataset.create_with_db()
-        return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
+        return render(request, 'admin/pages/faketools/fake-image-search.html', context)
     # Need to correct for specific exceptions problem with opencv Python
     except Exception as e:
         logger.exception(e)
         context['error_message'] = _('msg.personal.fake.imagesearch.dataset.error')
-        return render(request, 'adminapp/pages/faketools/fake-image-search.html', context)
+        return render(request, 'admin/pages/faketools/fake-image-search.html', context)
 
 
 # Utility Functions
