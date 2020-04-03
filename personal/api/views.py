@@ -371,23 +371,38 @@ def fakenews_image_dataset(request):
 
 
 # error views
-def error_500(request, template_name="admin/pages/errors/error-500.html"):
+def error_500(request, template_name="admin/pages/errors/error.html"):
     data = {}
+    data['error_code'] = '500'
+    data['error_message'] = _('msg.error.500')
     return render(request, template_name, data)
 
 
-def error_400(request, exception, template_name="admin/pages/errors/error-404.html"):
+def error_400(request, exception, template_name="admin/pages/errors/error.html"):
     data = {}
+    data['error_code'] = '400'
+    data['error_message'] = _('msg.error.400')
     return render(request, template_name, data)
 
 
-def error_403(request, exception, template_name="admin/pages/errors/error-404.html"):
+def error_403(request, exception, template_name="admin/pages/errors/error.html"):
     data = {}
+    data['error_code'] = '403'
+    data['error_message'] = _('msg.error.403')
     return render(request, template_name, data)
 
 
-def error_404(request, exception, template_name="admin/pages/errors/error-404.html"):
+def error_404(request, exception, template_name="admin/pages/errors/error.html"):
     data = {}
+    data['error_code'] = '404'
+    data['error_message'] = _('msg.error.404')
+    return render(request, template_name, data)
+
+
+def error_401(request, exception, template_name="admin/pages/errors/error.html"):
+    data = {}
+    data['error_code'] = '401'
+    data['error_message'] = _('msg.error.401')
     return render(request, template_name, data)
 
 
@@ -402,3 +417,41 @@ def get_token_from_cookie(request):
     if token:
         token = token.replace("Token%20", "")
     return token
+
+
+
+
+# error views
+def error_500(request, template_name="admin/pages/errors/error.html"):
+    data = {}
+    data['error_code'] = '500'
+    data['error_message'] = 'We are currently unable to handle your request. You can try reloading or come back later.'
+    return render(request, template_name, data)
+
+
+def error_400(request, exception, template_name="admin/pages/errors/error.html"):
+    data = {}
+    data['error_code'] = '400'
+    data['error_message'] = 'Bad Request'
+    return render(request, template_name, data)
+
+
+def error_403(request, exception, template_name="admin/pages/errors/error.html"):
+    data = {}
+    data['error_code'] = '403'
+    data['error_message'] = 'Forbidden'
+    return render(request, template_name, data)
+
+
+def error_404(request, exception, template_name="admin/pages/errors/error.html"):
+    data = {}
+    data['error_code'] = '404'
+    data['error_message'] = 'The page you’re looking for was not found.'
+    return render(request, template_name, data)
+
+
+def error_401(request, exception, template_name="admin/pages/errors/error.html"):
+    data = {}
+    data['error_code'] = '401'
+    data['error_message'] = 'Unauthorized'
+    return render(request, template_name, data)
