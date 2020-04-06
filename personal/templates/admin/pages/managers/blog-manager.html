@@ -51,13 +51,13 @@
                 </div>
             </div>
         </div>
-        <div class="blogcontainer">
+        <div class="blogcontainer" id="bcontainer">
                 <div class="row">
 
                 </div>
-                <div class="btn-group-sm" >
-                    <button class="btn btn-light" id="prev-page" disabled>&laquo;</button>
-                    <button class="btn btn-light" id="next-page" disabled>&raquo;</button>
+                <div class="btn-group-sm" id="pagination-button" >
+                    <a class="btn btn-light disabled" href="#" id="prev-page" >&laquo;</a>
+                    <a class="btn btn-light disabled" href="#" id="next-page" >&raquo;</a>
                 </div>
         </div>
 
@@ -91,7 +91,7 @@
                                     '<div class="card-body">'+
                                     '<h4 class="card-title">'+blog.title+'</h4>'+
                                     '<p class="card-text">' + blog.description +'</p>'+
-                                    // Try to make these urls dynamic
+                                     // TODO Try to make these urls dynamic
                                     '<a href= "api/personal/staffhome/editblog/'+blog.slug+'" class="card-link"><i class="mdi mdi-lead-pencil mdi-24px"></i></a>'+
                                     '<a href="api/personal/staffhome/deleteblog/'+blog.slug+'" class="card-link"><i class="mdi mdi-delete mdi-24px"></i></a>'+
                                     '<a href="api/personal/staffhome/bloghistory/'+blog.slug+'" class="card-link"><i class="mdi mdi-history mdi-24px"></i></a>'+
@@ -100,24 +100,39 @@
 
                 }
                 if( data.next ){
-                    $("#next-page").prop('disabled', false);
-                    $("#next-page").unbind("click");
-                    $("#next-page").click((event) => {
-                        send_request(data.next);
-                    });
+                    $("#next-page").attr("href", data.next);
+                    $("#next-page").attr("class","btn btn-light");
                 }else{
-                    $("#next-page").prop('disabled', true);
+                    $("#next-page").attr('href', '#');
+                    $("#next-page").attr("class","btn btn-light disabled");
                 }
 
                 if( data.previous ){
-                    $("#prev-page").prop('disabled', false);
-                    $("#prev-page").unbind("click");
-                    $("#prev-page").click((event) => {
-                        send_request(data.previous);
-                    });
+                    $("#prev-page").attr("href", data.previous);
+                    $("#prev-page").attr("class","btn btn-light");
                 }else {
-                    $("#prev-page").prop('disabled', true);
+                    $("#prev-page").attr('href', '#');
+                    $("#prev-page").attr("class","btn btn-light disabled");
                 }
+                // if( data.next ){
+                //     $("#next-page").prop('disabled', false);
+                //     $("#next-page").unbind("click");
+                //     $("#next-page").click((event) => {
+                //         send_request(data.next);
+                //     });
+                // }else{
+                //     $("#next-page").prop('disabled', true);
+                // }
+                //
+                // if( data.previous ){
+                //     $("#prev-page").prop('disabled', false);
+                //     $("#prev-page").unbind("click");
+                //     $("#prev-page").click((event) => {
+                //         send_request(data.previous);
+                //     });
+                // }else {
+                //     $("#prev-page").prop('disabled', true);
+                // }
             });
         }
 
@@ -125,7 +140,7 @@
             $.ajaxSetup({xhrFields: { withCredentials: true } });
             let page = 1;
 
-            $("#add").click(() => {
+            $("#add").on('click', () => {
                  $(".add-blog").show();
                  $(".update-blog").hide();
             });
@@ -134,13 +149,57 @@
                  $(".update-blog").show();
             });
 
+            //This is jquery delegation event handling for back button feature
+            $("#pagination-button").on( 'click','#next-page', (event) => {
+                event.preventDefault();
+                send_request($(event.target).attr('href'));
+                return false
+            });
+
+            //This is jquery delegation event handling for back button feature
+            $("#pagination-button").on( 'click', '#prev-page', (event) => {
+                event.preventDefault();
+                send_request($(event.target).attr('href'));
+                return false;
+            });
+
 
             $("#blog-search").submit((event) => {
                 event.preventDefault();
                 let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
                 send_request(search);
-            })
-        })
+            });
+
+
+
+            //Using session storage for back function
+            var saveData = function() {
+                if (!sessionStorage)
+                    return;
+                alert("HI");
+                var data = {
+                    // id: id,
+                    // scroll: $("#PostItemContainer").scrollTop(),
+                    html: $("#bcontainer").html()
+                };
+                sessionStorage.setItem("list_html",JSON.stringify(data));
+            };
+
+            var restoreData = function() {
+                if (!sessionStorage)
+                    return;
+                var data = sessionStorage.getItem("list_html");
+                if (!data)
+                    return null;
+                alert(data);
+                return JSON.parse(data);
+            };
+
+            // saveData();
+            // restoreData();
+        });
+
+
 
     </script>
 {% endblock %}
