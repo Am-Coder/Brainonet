@@ -21,7 +21,7 @@ from rest_framework.response import Response
 import cv2
 import logging
 import numpy as np
-
+from django.http import HttpResponseGone
 logger = logging.getLogger(__name__)
 
 
