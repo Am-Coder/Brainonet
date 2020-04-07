@@ -27,7 +27,6 @@
                     </div>
                     {% endfor %}
                     <button type="submit" class="btn btn-gradient-primary mr-2">Submit</button>
-                    <button class="btn btn-light">Cancel</button>
                 </form>
               </div>
             </div>
@@ -75,6 +74,27 @@
 {% block custom_scripts %}
     <script>
         "use strict";
+        //Using session storage for back function
+        var saveData = function() {
+            if (!sessionStorage)
+                return;
+            var data = {
+                // id: id,
+                // scroll: $("#PostItemContainer").scrollTop(),
+                html: $("#bcontainer").html()
+            };
+            sessionStorage.setItem("list_html",JSON.stringify(data));
+        };
+
+        var restoreData = function() {
+            if (!sessionStorage)
+                return;
+            var data = sessionStorage.getItem("list_html");
+            if (!data)
+                return null;
+            return JSON.parse(data);
+        };
+
 
         function send_request(search){
 
@@ -114,6 +134,8 @@
                     $("#prev-page").attr('href', '#');
                     $("#prev-page").attr("class","btn btn-light disabled");
                 }
+
+                saveData();
                 // if( data.next ){
                 //     $("#next-page").prop('disabled', false);
                 //     $("#next-page").unbind("click");
@@ -137,6 +159,8 @@
         }
 
         $( () => {
+
+            //TODO this setting is for django CORS which is not working correctly, make it work
             $.ajaxSetup({xhrFields: { withCredentials: true } });
             let page = 1;
 
@@ -148,6 +172,23 @@
                  $(".add-blog").hide();
                  $(".update-blog").show();
             });
+
+
+            $("#blog-search").submit((event) => {
+                event.preventDefault();
+                let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
+                send_request(search);
+            });
+
+            //back button feature
+            {% if back %}
+                $(".add-blog").hide();
+                $(".update-blog").show();
+                let data = restoreData();
+                if( data )
+                    $("#bcontainer").html(data.html);
+                console.log(data);
+            {% endif %}
 
             //This is jquery delegation event handling for back button feature
             $("#pagination-button").on( 'click','#next-page', (event) => {
@@ -162,41 +203,6 @@
                 send_request($(event.target).attr('href'));
                 return false;
             });
-
-
-            $("#blog-search").submit((event) => {
-                event.preventDefault();
-                let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
-                send_request(search);
-            });
-
-
-
-            //Using session storage for back function
-            var saveData = function() {
-                if (!sessionStorage)
-                    return;
-                alert("HI");
-                var data = {
-                    // id: id,
-                    // scroll: $("#PostItemContainer").scrollTop(),
-                    html: $("#bcontainer").html()
-                };
-                sessionStorage.setItem("list_html",JSON.stringify(data));
-            };
-
-            var restoreData = function() {
-                if (!sessionStorage)
-                    return;
-                var data = sessionStorage.getItem("list_html");
-                if (!data)
-                    return null;
-                alert(data);
-                return JSON.parse(data);
-            };
-
-            // saveData();
-            // restoreData();
         });
 
 

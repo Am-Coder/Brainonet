@@ -44,8 +44,13 @@ def staffhome_view(request):
 @permission_classes([IsAuthenticated])
 def blog_manager_view(request):
     context = {}
+    logger.info(request.query_params)
+    logger.info(request.GET)
     context['response'] = _("response.success")
     context['blogForm'] = form.BlogForm
+    # for session storage based back button
+    if request.GET.get('back', False):
+        context['back'] = True
     return render(request, "admin/pages/managers/blog-manager.html", context)
 
 
@@ -55,6 +60,9 @@ def community_manager_view(request):
     context = {}
     context['response'] = _("response.success")
     context['communityForm'] = form.CommunityForm
+    # for session storage based back button
+    if request.GET.get('back', False):
+        context['back'] = True
     return render(request, "admin/pages/managers/community-manager.html", context)
 
 
@@ -64,6 +72,9 @@ def reference_manager_view(request):
     context = {}
     context['response'] = _("response.success")
     context['referenceForm'] = form.ReferencesForm
+    # for session storage based back button
+    if request.GET.get('back', False):
+        context['back'] = True
     return render(request, "admin/pages/managers/reference-manager.html", context)
 
 

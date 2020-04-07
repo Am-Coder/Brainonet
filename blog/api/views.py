@@ -129,8 +129,8 @@ def add_comment(request, slug):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def delete_comment(request, slug, commentid):
-    print(slug)
-    print(commentid)
+    logger.info(slug)
+    logger.info(commentid)
     data = {}
     try:
         blog = Blog.objects.get(slug=slug)
