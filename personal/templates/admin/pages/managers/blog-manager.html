@@ -185,6 +185,10 @@
                 send_request($(event.target).attr('href'));
                 return false;
             });
+
+            //Default show all
+            let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
+            send_request(search);
         });
 
 

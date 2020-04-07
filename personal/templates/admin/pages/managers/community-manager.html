@@ -177,7 +177,9 @@
                 return false;
             });
 
-
+            //Default show all
+            let search = "{% url 'personal:community-list' %}?page="+page+"&"+$("#community-search").serialize();
+            send_request(search);
         })
 
     </script>

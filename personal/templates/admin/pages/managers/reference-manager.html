@@ -175,6 +175,9 @@
                 return false;
             });
 
+            //Default show all
+            let search = "{% url 'personal:reference-list' %}?page="+page+"&"+$("#reference-search").serialize();
+            send_request(search);
         })
 
     </script>

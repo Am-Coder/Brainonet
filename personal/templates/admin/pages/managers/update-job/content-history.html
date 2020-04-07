@@ -27,11 +27,11 @@
                   </tbody>
                 </table>
                 {% if blogback %}
-                <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:blog_manager' %}?back=True">Cancel</a>
+                <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:blog_manager' %}?back=True">Back</a>
                 {% elif communityback %}
-                <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:community_manager' %}?back=True">Cancel</a>
+                <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:community_manager' %}?back=True">Back</a>
                 {% elif referenceback %}
-                <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:reference_manager' %}?back=True">Cancel</a>
+                <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:reference_manager' %}?back=True">Back</a>
                 {% endif %}
 
                 {% if is_paginated %}
