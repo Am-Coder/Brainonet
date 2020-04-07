@@ -50,7 +50,7 @@
                 </div>
             </div>
         </div>
-        <div class="blogcontainer" id="bcontainer">
+        <div class="blogcontainer" id="content-container">
                 <div class="row">
 
                 </div>
@@ -81,7 +81,7 @@
             var data = {
                 // id: id,
                 // scroll: $("#PostItemContainer").scrollTop(),
-                html: $("#bcontainer").html()
+                html: $("#content-container").html()
             };
             sessionStorage.setItem("list_html",JSON.stringify(data));
         };
@@ -136,25 +136,7 @@
                 }
 
                 saveData();
-                // if( data.next ){
-                //     $("#next-page").prop('disabled', false);
-                //     $("#next-page").unbind("click");
-                //     $("#next-page").click((event) => {
-                //         send_request(data.next);
-                //     });
-                // }else{
-                //     $("#next-page").prop('disabled', true);
-                // }
-                //
-                // if( data.previous ){
-                //     $("#prev-page").prop('disabled', false);
-                //     $("#prev-page").unbind("click");
-                //     $("#prev-page").click((event) => {
-                //         send_request(data.previous);
-                //     });
-                // }else {
-                //     $("#prev-page").prop('disabled', true);
-                // }
+
             });
         }
 
@@ -186,7 +168,7 @@
                 $(".update-blog").show();
                 let data = restoreData();
                 if( data )
-                    $("#bcontainer").html(data.html);
+                    $("#content-container").html(data.html);
                 console.log(data);
             {% endif %}
 

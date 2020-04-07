@@ -89,6 +89,11 @@ class BlogHistoryView(generic.ListView, APIView):
         history = BlogHistory.objects.filter(blogid=self.kwargs['slug'])
         return history
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['blogback'] = True
+        return context
+
 
 class BlogUpdateView(generic.UpdateView):
     permission_classes = [IsAuthenticated]
@@ -112,6 +117,11 @@ class BlogUpdateView(generic.UpdateView):
         BlogHistory(blogid=self.object.slug, user=self.request.user, job='U').save()
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['blogback'] = True
+        return context
+
 
 class BlogDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
@@ -127,6 +137,11 @@ class BlogDeleteView(generic.DeleteView, APIView):
         self.object.delete()
         return HttpResponseRedirect(success_url)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['blogback'] = True
+        return context
+
 
 class CommunityHistoryView(generic.ListView, APIView):
     permission_classes = [IsAuthenticated]
@@ -138,6 +153,11 @@ class CommunityHistoryView(generic.ListView, APIView):
     def get_queryset(self):
         history = CommunityHistory.objects.filter(communityid=self.kwargs['slug'])
         return history
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['communityback'] = True
+        return context
 
 
 class CommunityUpdateView(generic.UpdateView):
@@ -162,6 +182,11 @@ class CommunityUpdateView(generic.UpdateView):
         CommunityHistory(communityid=self.object.slug, user=self.request.user, job='U').save()
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['communityback'] = True
+        return context
+
 
 class CommunityDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
@@ -177,6 +202,11 @@ class CommunityDeleteView(generic.DeleteView, APIView):
         self.object.delete()
         return HttpResponseRedirect(success_url)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['communityback'] = True
+        return context
+
 
 class ReferenceHistoryView(generic.ListView, APIView):
     permission_classes = [IsAuthenticated]
@@ -188,6 +218,11 @@ class ReferenceHistoryView(generic.ListView, APIView):
     def get_queryset(self):
         history = ReferenceHistory.objects.filter(referenceid=self.kwargs['pk'])
         return history
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['referenceback'] = True
+        return context
 
 
 class ReferenceUpdateView(generic.UpdateView):
@@ -212,6 +247,11 @@ class ReferenceUpdateView(generic.UpdateView):
         ReferenceHistory(referenceid=self.object.pk, user=self.request.user, job='U').save()
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['referenceback'] = True
+        return context
+
 
 class ReferenceDeleteView(generic.DeleteView, APIView):
     permission_classes = [IsAuthenticated]
@@ -226,6 +266,11 @@ class ReferenceDeleteView(generic.DeleteView, APIView):
         ReferenceHistory(referenceid=self.object.pk, user=self.request.user, job='D').save()
         self.object.delete()
         return HttpResponseRedirect(success_url)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['referenceback'] = True
+        return context
 
 
 class UserListView(generic.ListView, APIView):

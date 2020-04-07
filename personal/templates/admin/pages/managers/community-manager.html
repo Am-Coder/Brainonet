@@ -50,13 +50,13 @@
                 </div>
             </div>
         </div>
-        <div class="communitycontainer">
+        <div class="communitycontainer" id="content-container">
                 <div class="row">
 
                 </div>
-                <div class="btn-group-sm" >
-                    <button class="btn btn-light" id="prev-page" disabled>&laquo;</button>
-                    <button class="btn btn-light" id="next-page" disabled>&raquo;</button>
+                <div class="btn-group-sm" id="pagination-button" >
+                    <a class="btn btn-light disabled" href="#" id="prev-page" >&laquo;</a>
+                    <a class="btn btn-light disabled" href="#" id="next-page" >&raquo;</a>
                 </div>
         </div>
 
@@ -67,6 +67,26 @@
 {% block custom_scripts %}
     <script>
         "use strict";
+        //Using session storage for back function
+        var saveData = function() {
+            if (!sessionStorage)
+                return;
+            var data = {
+                // id: id,
+                // scroll: $("#PostItemContainer").scrollTop(),
+                html: $("#content-container").html()
+            };
+            sessionStorage.setItem("list_html",JSON.stringify(data));
+        };
+
+        var restoreData = function() {
+            if (!sessionStorage)
+                return;
+            var data = sessionStorage.getItem("list_html");
+            if (!data)
+                return null;
+            return JSON.parse(data);
+        };
 
         function send_request(search){
 
@@ -92,28 +112,28 @@
 
                 }
                 if( data.next ){
-                    $("#next-page").prop('disabled', false);
-                    $("#next-page").unbind("click");
-                    $("#next-page").click((event) => {
-                        send_request(data.next);
-                    });
+                    $("#next-page").attr("href", data.next);
+                    $("#next-page").attr("class","btn btn-light");
                 }else{
-                    $("#next-page").prop('disabled', true);
+                    $("#next-page").attr('href', '#');
+                    $("#next-page").attr("class","btn btn-light disabled");
                 }
 
                 if( data.previous ){
-                    $("#prev-page").prop('disabled', false);
-                    $("#prev-page").unbind("click");
-                    $("#prev-page").click((event) => {
-                        send_request(data.previous);
-                    });
+                    $("#prev-page").attr("href", data.previous);
+                    $("#prev-page").attr("class","btn btn-light");
                 }else {
-                    $("#prev-page").prop('disabled', true);
+                    $("#prev-page").attr('href', '#');
+                    $("#prev-page").attr("class","btn btn-light disabled");
                 }
+
+                saveData();
+
             });
         }
 
         $( () => {
+            //TODO this setting is for django CORS which is not working correctly, make it work
             $.ajaxSetup({xhrFields: { withCredentials: true } });
             let page = 1;
 
@@ -131,7 +151,33 @@
                 event.preventDefault();
                 let search = "{% url 'personal:community-list' %}?page="+page+"&"+$("#community-search").serialize();
                 send_request(search);
-            })
+            });
+
+            //back button feature
+            {% if back %}
+                $(".add-community").hide();
+                $(".update-community").show();
+                let data = restoreData();
+                if( data )
+                    $("#content-container").html(data.html);
+                console.log(data);
+            {% endif %}
+
+            //This is jquery delegation event handling for back button feature
+            $("#pagination-button").on( 'click','#next-page', (event) => {
+                event.preventDefault();
+                send_request($(event.target).attr('href'));
+                return false
+            });
+
+            //This is jquery delegation event handling for back button feature
+            $("#pagination-button").on( 'click', '#prev-page', (event) => {
+                event.preventDefault();
+                send_request($(event.target).attr('href'));
+                return false;
+            });
+
+
         })
 
     </script>

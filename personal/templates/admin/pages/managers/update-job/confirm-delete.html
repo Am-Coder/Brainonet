@@ -17,6 +17,13 @@
                     {% endfor %}
 
                     <button type="submit" class="btn btn-gradient-primary mr-2">Delete</button>
+                    {% if blogback %}
+                    <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:blog_manager' %}?back=True">Cancel</a>
+                    {% elif communityback %}
+                    <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:community_manager' %}?back=True">Cancel</a>
+                    {% elif referenceback %}
+                    <a class="btn btn-gradient-primary mr-2" style="color: white" href="{% url 'personal:reference_manager' %}?back=True">Cancel</a>
+                    {% endif %}
                 </form>
           </div>
         </div>
