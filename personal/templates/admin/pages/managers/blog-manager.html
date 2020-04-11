@@ -83,6 +83,7 @@
                 // scroll: $("#PostItemContainer").scrollTop(),
                 html: $("#content-container").html()
             };
+            console.log(data);
             sessionStorage.setItem("list_html",JSON.stringify(data));
         };
 
@@ -90,6 +91,7 @@
             if (!sessionStorage)
                 return;
             var data = sessionStorage.getItem("list_html");
+            // console.log(data);
             if (!data)
                 return null;
             return JSON.parse(data);
@@ -170,6 +172,10 @@
                 if( data )
                     $("#content-container").html(data.html);
                 console.log(data);
+            {% else %}
+                //Default show all
+                let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
+                send_request(search);
             {% endif %}
 
             //This is jquery delegation event handling for back button feature
@@ -186,9 +192,6 @@
                 return false;
             });
 
-            //Default show all
-            let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
-            send_request(search);
         });
 
 

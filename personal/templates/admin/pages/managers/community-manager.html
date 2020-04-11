@@ -161,6 +161,10 @@
                 if( data )
                     $("#content-container").html(data.html);
                 console.log(data);
+            {% else %}
+                //Default show all
+                let search = "{% url 'personal:community-list' %}?page="+page+"&"+$("#community-search").serialize();
+                send_request(search);
             {% endif %}
 
             //This is jquery delegation event handling for back button feature
@@ -177,9 +181,7 @@
                 return false;
             });
 
-            //Default show all
-            let search = "{% url 'personal:community-list' %}?page="+page+"&"+$("#community-search").serialize();
-            send_request(search);
+
         })
 
     </script>
