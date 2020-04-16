@@ -11,6 +11,7 @@ from blog.models import Blog, Comment, Vote, References
 from blog.api.serializers import BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, CommentCreateSerializer, ReferenceSerializer
 from django.utils.translation import ugettext_lazy as _
 import logging
+from blog.utils import vote_handler
 
 logger = logging.getLogger(__name__)
 
@@ -110,8 +111,6 @@ def add_comment(request, slug):
             blog = Blog.objects.get(slug=slug)
             user = request.user
             data['response'] = _("response.success")
-            # print(blog)
-            # print(user)
             serializer.save(user=user, blog=blog, me="ME")
 
         except Blog.DoesNotExist:
@@ -150,17 +149,19 @@ def toggle_blog_vote(request, slug):
     data = {}
     try:
         blog = Blog.objects.get(slug=slug)
-        count = blog.vote_count
-        all_votes = Vote.objects.filter(blog=blog)
-        data['response'] = _("response.success")
-        if all_votes.filter(user=request.user).exists():
-            all_votes.filter(user=request.user).delete()
-            count -= 1
-            data['status'] = False
-        else:
-            Vote.objects.create(user=request.user, blog=blog)
-            count += 1
-            data['status'] = True
+        vote_handler(request.user, blog)
+        # count = blog.vote_count
+        # all_votes = Vote.objects.filter(blog=blog)
+        # data['response'] = _("response.success")
+        data, count = vote_handler(request.user, blog)
+        # if all_votes.filter(user=request.user).exists():
+        #     all_votes.filter(user=request.user).delete()
+        #     count -= 1
+        #     data['status'] = False
+        # else:
+        #     Vote.objects.create(user=request.user, blog=blog)
+        #     count += 1
+        #     data['status'] = True
         blog.vote_count = count
         blog.save()
 

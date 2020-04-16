@@ -10,7 +10,7 @@ from communities.models import Communities, CommunitySubscribers
 from communities.api.serializers import CommunitySerializer, CommunityCreateSerializer, CommunityUpdateSerializer
 from django.utils.translation import ugettext_lazy as _
 import logging
-
+from communities.utils import check_subscribers
 logger = logging.getLogger(__name__)
 
 
@@ -124,13 +124,14 @@ def api_community_subscribe_view(request, slug):
 def api_community_check_subscribe_view(request, slug):
     data = {}
     try:
-        community = Communities.objects.get(slug=slug)
-        user = request.user
-        data['response'] = _("response.success")
-        if CommunitySubscribers.objects.filter(user=user, community=community):
-            data['subscribed'] = True
-            return Response(data=data)
-        data['subscribed'] = False
+        data = check_subscribers(request.user, slug)
+        # community = Communities.objects.get(slug=slug)
+        # user = request.user
+        # data['response'] = _("response.success")
+        # if CommunitySubscribers.objects.filter(user=user, community=community):
+        #     data['subscribed'] = True
+        #     return Response(data=data)
+        # data['subscribed'] = False
         return Response(data=data)
     except Communities.DoesNotExist:
         data['response'] = _("response.error")
