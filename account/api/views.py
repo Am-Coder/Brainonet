@@ -46,7 +46,6 @@ class Login(APIView):
 
     def post(self, request):
         info = AccountSerializer(data=request.data)
-
         if info.is_valid(raise_exception=True):
             info = info.data
         first_name = info.get('first_name')
