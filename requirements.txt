@@ -33,3 +33,4 @@ PyYAML==5.3
 twilio~=6.35.2
 pandas~=1.0.3
 imutils~=0.5.3
+pytest~=5.3.5
