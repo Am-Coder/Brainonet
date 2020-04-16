@@ -3,6 +3,7 @@ from account.textlocal import sendSMS
 import json
 from django.utils.translation import ugettext_lazy as _
 from account.models import Authi, Account, Token
+from django.contrib.auth import logout
 
 
 def otp_send(num):
@@ -68,7 +69,7 @@ def otp_authenticate(otp, mobile_no):
         return data
 
 
-def login(request,first_name,last_name):
+def login_check(request, first_name, last_name):
     data = {}
     try:
         user = request.user
@@ -85,4 +86,18 @@ def login(request,first_name,last_name):
         data['response'] = _("response.error")
         data['error_message'] = _("msg.account.token.expired")
     finally:
+        return data
+
+
+def logout_check(request):
+    data = {}
+    try:
+        request.auth.delete()
+        logout(request)
+        data['response'] = _("response.success")
+        data['message'] = _("msg.account.logout.success")
+        return data
+    except Token.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_message'] = _("msg.account.token.expired")
         return data

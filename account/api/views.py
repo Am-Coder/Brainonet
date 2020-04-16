@@ -1,13 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from account.models import Authi, Account, Token
-from django.contrib.auth import logout
+from account.models import Authi
 import json
 from account.api.serializers import AccountSerializer, AuthiSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.utils.translation import ugettext_lazy as _
 import logging
-from account.utils import otp_send, otp_authenticate, login
+from account.utils import otp_send, otp_authenticate, login_check, logout_check
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +51,7 @@ class Login(APIView):
             info = info.data
         first_name = info.get('first_name')
         last_name = info.get('last_name')
-        data = login(request, first_name, last_name)
+        data = login_check(request, first_name, last_name)
         return Response(data)
 
 
@@ -62,15 +61,6 @@ class Logout(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        data = {}
-        try:
-            request.auth.delete()
-            logout(request)
-            data['response'] = _("response.success")
-            data['message'] = _("msg.account.logout.success")
-            return Response(data)
-        except Token.DoesNotExist:
-            data['response'] = _("response.error")
-            data['error_message'] = _("msg.account.token.expired")
-            return Response(data)
+        data = logout_check(request)
+        return Response(data)
 
