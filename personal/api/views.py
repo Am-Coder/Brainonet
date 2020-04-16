@@ -21,7 +21,9 @@ from rest_framework.response import Response
 import cv2
 import logging
 import numpy as np
+from personal.utils import get_token_from_cookie, get_opencv_img_from_buffer, get_image_search_results
 from django.http import HttpResponseGone
+
 logger = logging.getLogger(__name__)
 
 
@@ -390,18 +392,19 @@ def fakenews_image_search(request):
     image_form = form.ImageSearchForm(request.POST, request.FILES)
     if image_form.is_valid():
         logger.info("Form Valid")
-        context = {}
+        # context = {}
         logger.info(request.FILES.get('image'))
         image = get_opencv_img_from_buffer(request.FILES.get('image'))
-        cd = colordescriptor.ColorDescriptor((8, 12, 3))
-        features = cd.describe(image)
-        results = searcher.Searcher().search(features, 3)
-        if len(results) != 0:
-            context['response'] = _("response.success")
-            context['results'] = results
-        else:
-            context['response'] = _("response.error")
-            context['error_message'] = _('msg.personal.fake.imagesearch.not.found')
+        context = get_image_search_results(image)
+        # cd = colordescriptor.ColorDescriptor((8, 12, 3))
+        # features = cd.describe(image)
+        # results = searcher.Searcher().search(features, 3)
+        # if len(results) != 0:
+        #     context['response'] = _("response.success")
+        #     context['results'] = results
+        # else:
+        #     context['response'] = _("response.error")
+        #     context['error_message'] = _('msg.personal.fake.imagesearch.not.found')
     else:
         logger.warning("Form Invalid")
 
@@ -461,53 +464,50 @@ def error_401(request, exception, template_name="admin/pages/errors/error.html")
     data['error_message'] = _('msg.error.401')
     return render(request, template_name, data)
 
-
 # Utility Functions
-def get_opencv_img_from_buffer(buffer, flags=-1):
-    bytes_as_np_array = np.frombuffer(buffer.read(), dtype=np.uint8)
-    return cv2.imdecode(bytes_as_np_array, flags)
-
-
-def get_token_from_cookie(request):
-    token = request.COOKIES.get("Authorization")
-    if token:
-        token = token.replace("Token%20", "")
-    return token
-
-
+# def get_opencv_img_from_buffer(buffer, flags=-1):
+#     bytes_as_np_array = np.frombuffer(buffer.read(), dtype=np.uint8)
+#     return cv2.imdecode(bytes_as_np_array, flags)
+#
+#
+# def get_token_from_cookie(request):
+#     token = request.COOKIES.get("Authorization")
+#     if token:
+#         token = token.replace("Token%20", "")
+#     return token
 
 
 # error views
-def error_500(request, template_name="admin/pages/errors/error.html"):
-    data = {}
-    data['error_code'] = '500'
-    data['error_message'] = 'We are currently unable to handle your request. You can try reloading or come back later.'
-    return render(request, template_name, data)
-
-
-def error_400(request, exception, template_name="admin/pages/errors/error.html"):
-    data = {}
-    data['error_code'] = '400'
-    data['error_message'] = 'Bad Request'
-    return render(request, template_name, data)
-
-
-def error_403(request, exception, template_name="admin/pages/errors/error.html"):
-    data = {}
-    data['error_code'] = '403'
-    data['error_message'] = 'Forbidden'
-    return render(request, template_name, data)
-
-
-def error_404(request, exception, template_name="admin/pages/errors/error.html"):
-    data = {}
-    data['error_code'] = '404'
-    data['error_message'] = 'The page you’re looking for was not found.'
-    return render(request, template_name, data)
-
-
-def error_401(request, exception, template_name="admin/pages/errors/error.html"):
-    data = {}
-    data['error_code'] = '401'
-    data['error_message'] = 'Unauthorized'
-    return render(request, template_name, data)
+# def error_500(request, template_name="admin/pages/errors/error.html"):
+#     data = {}
+#     data['error_code'] = '500'
+#     data['error_message'] = 'We are currently unable to handle your request. You can try reloading or come back later.'
+#     return render(request, template_name, data)
+#
+#
+# def error_400(request, exception, template_name="admin/pages/errors/error.html"):
+#     data = {}
+#     data['error_code'] = '400'
+#     data['error_message'] = 'Bad Request'
+#     return render(request, template_name, data)
+#
+#
+# def error_403(request, exception, template_name="admin/pages/errors/error.html"):
+#     data = {}
+#     data['error_code'] = '403'
+#     data['error_message'] = 'Forbidden'
+#     return render(request, template_name, data)
+#
+#
+# def error_404(request, exception, template_name="admin/pages/errors/error.html"):
+#     data = {}
+#     data['error_code'] = '404'
+#     data['error_message'] = 'The page you’re looking for was not found.'
+#     return render(request, template_name, data)
+#
+#
+# def error_401(request, exception, template_name="admin/pages/errors/error.html"):
+#     data = {}
+#     data['error_code'] = '401'
+#     data['error_message'] = 'Unauthorized'
+#     return render(request, template_name, data)
