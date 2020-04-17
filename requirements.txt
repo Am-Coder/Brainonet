@@ -15,7 +15,7 @@ django-timezone-field==3.0
 djangorestframework~=3.11.0
 idna==2.8
 kombu==4.6.3
-numpy==1.16.4
+numpy==1.18.2
 opencv-python~=4.2.0.32
 Pillow==6.0.0
 python-crontab==2.3.8
