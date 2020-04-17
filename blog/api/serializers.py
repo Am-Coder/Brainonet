@@ -131,8 +131,8 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         fields = ['comment']
 
     def validate_comment(self, comment):
-        if len(comment) > 300:
-            raise serializers.ValidationError("Comment length exceeded")
+        if len(comment) > 250:
+            raise serializers.ValidationError("Maximum Comment length exceeded")
         return comment
 
     def save(self, **kwargs):
