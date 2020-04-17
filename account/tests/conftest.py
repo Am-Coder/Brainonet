@@ -7,18 +7,20 @@ def test_mobile_num():
     return 'strong-test-pass'
 
 
+
 @pytest.fixture
 def create_user(db, test_mobile_num):
     def make_user(**kwargs):
-        kwargs['mobile_number'] = test_mobile_num
+        if 'mobile_number' not in kwargs:
+            kwargs['mobile_number'] = test_mobile_num
         if 'first_name' not in kwargs:
             kwargs['first_name'] = 'John'
         if 'last_name' not in kwargs:
             kwargs['last_name'] = 'Doe'
-        return Account.objects.create(**kwargs)
+        account, s = Account.objects.get_or_create(**kwargs)
+        return account
 
     return make_user
-
 
 @pytest.fixture
 def create_token(db, create_user):
