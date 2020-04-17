@@ -33,15 +33,16 @@ class AuthiSerializer(serializers.ModelSerializer):
     class Meta:
         model = Authi
         fields = "__all__"
+        # fields = ['mobile_number', 'otp']
 
     def validate_otp(self, otp):
         if len(otp) != 6:
-            raise serializers.ValidationError("OTP length incorrect")
+            raise serializers.ValidationError("OTP length should be 6")
         return otp
 
     def validate_mobile_number(self, mobile_number):
-        if len(mobile_number) >= 20:
-            raise serializers.ValidationError("Mobile Number incorrect")
+        if len(mobile_number) >= 15:
+            raise serializers.ValidationError("Mobile Number length incorrect")
         return mobile_number
 
     def save(self, **kwargs):
