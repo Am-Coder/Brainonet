@@ -2,13 +2,7 @@ from blog.api.serializers import CommentCreateSerializer, ReferenceSerializer, \
     BlogCreateSerializer, BlogUpdateSerializer, BlogSerializer
 import pytest
 from blog.models import Blog, Comment, Vote, References
-from communities.models import Communities
-from account.models import Account
 
-
-@pytest.fixture
-def test_mobile_num():
-    return 'strong-test-pass'
 
 
 @pytest.fixture
@@ -16,34 +10,10 @@ def db_comment_serializer():
     return [{'comment': 'a'*251},
             {'comment': 'a'*250}]
 
+
 @pytest.fixture
 def db_references_serializer():
     return [{'refers': 'abc.com', 'description': 'Reference'}]
-
-
-@pytest.fixture
-def create_user(db, test_mobile_num):
-    def make_user(**kwargs):
-        kwargs['mobile_number'] = test_mobile_num
-        if 'first_name' not in kwargs:
-            kwargs['first_name'] = 'John'
-        if 'last_name' not in kwargs:
-            kwargs['last_name'] = 'Doe'
-        return Account.objects.create(**kwargs)
-
-    return make_user
-
-
-@pytest.fixture
-def create_dataset(db):
-    def make_dataset():
-        community = Communities(name="Com")
-        community.save()
-        blog = Blog(title="Blog", community=community)
-        blog.save()
-        return blog, community
-
-    return make_dataset
 
 
 @pytest.mark.django_db

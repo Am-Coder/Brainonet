@@ -1,38 +1,6 @@
 import pytest
-from blog.models import Blog, Vote
-from communities.models import Communities
-from account.models import Account
+from blog.models import Vote
 from blog.utils import vote_handler, is_image_aspect_ratio_valid, is_image_size_valid
-
-
-@pytest.fixture
-def test_mobile_num():
-    return 'strong-test-pass'
-
-
-@pytest.fixture
-def create_user(db, test_mobile_num):
-    def make_user(**kwargs):
-        kwargs['mobile_number'] = test_mobile_num
-        if 'first_name' not in kwargs:
-            kwargs['first_name'] = 'John'
-        if 'last_name' not in kwargs:
-            kwargs['last_name'] = 'Doe'
-        return Account.objects.create(**kwargs)
-
-    return make_user
-
-
-@pytest.fixture
-def create_dataset(db):
-    def make_dataset():
-        community = Communities(name="Com")
-        community.save()
-        blog = Blog(title="Blog", community=community)
-        blog.save()
-        return blog, community
-
-    return make_dataset
 
 
 @pytest.mark.django_db
