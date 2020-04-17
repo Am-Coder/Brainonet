@@ -33,12 +33,14 @@ def test_mobile_num():
 @pytest.fixture
 def create_user(db, test_mobile_num):
     def make_user(**kwargs):
-        kwargs['mobile_number'] = test_mobile_num
+        if 'mobile_number' not in kwargs:
+            kwargs['mobile_number'] = test_mobile_num
         if 'first_name' not in kwargs:
             kwargs['first_name'] = 'John'
         if 'last_name' not in kwargs:
             kwargs['last_name'] = 'Doe'
-        return Account.objects.create(**kwargs)
+        account, s = Account.objects.get_or_create(**kwargs)
+        return account
 
     return make_user
 
@@ -53,3 +55,12 @@ def create_dataset(db):
         return blog, community
 
     return make_dataset
+
+
+@pytest.fixture
+def image_url():
+    def img_url(url=None):
+        if url:
+            return url
+        return "test.png"
+    return img_url
