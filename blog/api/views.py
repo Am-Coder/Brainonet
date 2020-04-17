@@ -29,6 +29,7 @@ def api_detail_blog_view(request, slug):
         return Response(serializer.data)
 
 
+# Not being used now
 @api_view(['PUT', ])
 @permission_classes((IsAuthenticated,))
 def api_update_blog_view(request, slug):
@@ -57,6 +58,7 @@ def api_update_blog_view(request, slug):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Not being used now
 @api_view(['DELETE', ])
 @permission_classes((IsAuthenticated,))
 def api_delete_blog_view(request, slug):
@@ -73,6 +75,7 @@ def api_delete_blog_view(request, slug):
         return Response(data=data)
 
 
+# Not being used now
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def api_create_blog_view(request):
@@ -149,11 +152,12 @@ def toggle_blog_vote(request, slug):
     data = {}
     try:
         blog = Blog.objects.get(slug=slug)
-        vote_handler(request.user, blog)
         # count = blog.vote_count
         # all_votes = Vote.objects.filter(blog=blog)
         # data['response'] = _("response.success")
         data, count = vote_handler(request.user, blog)
+        data['vote_count'] = count
+        #
         # if all_votes.filter(user=request.user).exists():
         #     all_votes.filter(user=request.user).delete()
         #     count -= 1
@@ -162,6 +166,8 @@ def toggle_blog_vote(request, slug):
         #     Vote.objects.create(user=request.user, blog=blog)
         #     count += 1
         #     data['status'] = True
+        # data['vote_count'] = count
+
         blog.vote_count = count
         blog.save()
 

@@ -4,7 +4,6 @@ import pytest
 from blog.models import Blog, Comment, Vote, References
 
 
-
 @pytest.fixture
 def db_comment_serializer():
     return [{'comment': 'a'*251},
@@ -43,3 +42,4 @@ def test_references_serializer_shouldSaveValidatedReference(db_references_serial
     assert References.objects.count() == 0
     serializer.save()
     assert References.objects.count() == 1
+
