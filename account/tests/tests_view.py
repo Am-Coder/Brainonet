@@ -1,5 +1,5 @@
 import pytest
-from account.models import Token, Account
+from account.models import Token
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 

@@ -1,7 +1,7 @@
 from blog.api.serializers import CommentCreateSerializer, ReferenceSerializer, \
     BlogCreateSerializer, BlogUpdateSerializer, BlogSerializer
 import pytest
-from blog.models import Blog, Comment, Vote, References
+from blog.models import Comment, References
 
 
 @pytest.fixture

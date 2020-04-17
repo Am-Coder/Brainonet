@@ -1,7 +1,5 @@
 import pytest
-from account.models import Token, Account
 from blog.models import Blog, Vote, Comment
-from communities.models import Communities
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
