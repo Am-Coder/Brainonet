@@ -1,5 +1,5 @@
 import pytest
-from blog.models import Blog, Vote, Comment
+from blog.models import Blog, Vote, Comment, References
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -19,16 +19,22 @@ def test_api_detail_blog_view_shouldReturnBlogDetailsBySlug(auth_api_client, cre
 
 
 @pytest.mark.django_db
-def test_api_bloglistview(auth_api_client, create_dataset):
+def test_api_bloglistview(auth_api_client, create_dataset_with_image):
+    create_dataset_with_image()
     url = reverse("blog:blog-list")
     response = auth_api_client.get(url)
+    data = response.data
     assert response.status_code == 200
+    assert len(data['results']) > 0
 
 
 @pytest.mark.django_db
 def test_api_referencelistview(auth_api_client):
+    References.objects.create(refers="Refers", description="Describe")
     url = reverse("blog:reference-list")
     response = auth_api_client.get(url)
+    data = response.data
+    assert len(data['results']) > 0
     assert response.status_code == 200
 
 
