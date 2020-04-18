@@ -27,6 +27,7 @@ def api_detail_community_view(request, slug):
         return Response(serializers.data)
 
 
+# Not Used
 @api_view(['PUT', ])
 @permission_classes((IsAuthenticated,))
 def api_update_community_view(request, slug):
@@ -58,6 +59,7 @@ def api_update_community_view(request, slug):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Not Used
 @api_view(['DELETE', ])
 @permission_classes((IsAuthenticated,))
 def api_delete_community_view(request, slug):
@@ -74,6 +76,7 @@ def api_delete_community_view(request, slug):
         return Response(data=data)
 
 
+# Not Used
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def api_create_community_view(request):

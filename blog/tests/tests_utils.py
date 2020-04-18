@@ -38,7 +38,7 @@ def test_is_image_aspect_ratio_valid_shouldValidateImageAspectRaio(image_url):
     assert not wrong
 
 
-# Correct Test Format
+# TODO-Correct Test Format
 def test_is_image_size_valid_shouldValidateImageSize(image_url):
     image_url = image_url()
     img = Image.new('RGB', (512, 512))
