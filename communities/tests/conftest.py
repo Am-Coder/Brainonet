@@ -82,3 +82,30 @@ def in_memory_image(image_url):
         return img_file
 
     return make_image
+
+
+# So that images if not in-memory get removed
+@pytest.fixture(autouse=True)
+def clean_up(db):
+    # Before Each Test - SetUp
+
+    yield
+    # After each test - TearDown
+    Communities.objects.all().delete()
+    Blog.objects.all().delete()
+
+
+@pytest.fixture
+def create_dataset_with_image(db, in_memory_image):
+    def make_dataset():
+        img = in_memory_image()
+        community = Communities(name="Com")
+        community.avatarimage = img
+        community.backgroundimage = img
+        community.save()
+        blog = Blog(title="Blog", community=community)
+        blog.image = img
+        blog.save()
+        return blog, community
+
+    return make_dataset

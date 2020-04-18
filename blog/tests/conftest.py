@@ -2,6 +2,9 @@ import pytest
 from account.models import Token, Account
 from blog.models import Blog
 from communities.models import Communities
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
 
 
 @pytest.fixture
@@ -64,3 +67,45 @@ def image_url():
             return url
         return "test.png"
     return img_url
+
+
+@pytest.fixture
+def in_memory_image(image_url):
+    def make_image(url=None):
+        url = image_url(url)
+        img = Image.new('RGB', (512, 512))
+
+        # create in memory image for testing
+        new_image_io = BytesIO()
+        img.save(new_image_io, format='PNG')
+        img_file = ContentFile(new_image_io.getvalue(), url)
+        return img_file
+
+    return make_image
+
+
+# So that images if not in-memory get removed
+@pytest.fixture(autouse=True)
+def clean_up(db):
+    # Before Each Test - SetUp
+
+    yield
+    # After each test - TearDown
+    Communities.objects.all().delete()
+    Blog.objects.all().delete()
+
+
+@pytest.fixture
+def create_dataset_with_image(db, in_memory_image):
+    def make_dataset():
+        img = in_memory_image()
+        community = Communities(name="Com")
+        community.avatarimage = img
+        community.backgroundimage = img
+        community.save()
+        blog = Blog(title="Blog", community=community)
+        blog.image = img
+        blog.save()
+        return blog, community
+
+    return make_dataset
