@@ -204,13 +204,15 @@ def has_voted(request, slug):
         return Response(data)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def api_get_personal_collection(request):
     data = {}
     try:
         user = request.user
 
         if TaggedBlogs.objects.filter(user=user).exists():
-            serializer = TaggedBlogSerializer(TaggedBlogs.objects.create(user=user), many=True)
+            serializer = TaggedBlogSerializer(TaggedBlogs.objects.filter(user=user), many=True)
             data = serializer.data
             return Response(data)
     except Account.DoesNotExist:
@@ -219,6 +221,8 @@ def api_get_personal_collection(request):
         return Response(data)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def api_add_personal_collection(request, slug):
     data ={}
     try:
@@ -235,6 +239,8 @@ def api_add_personal_collection(request, slug):
         return Response(data)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def api_delete_from_personal_collection(request, slug):
     data ={}
     try:
@@ -251,6 +257,8 @@ def api_delete_from_personal_collection(request, slug):
         return Response(data)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def api_check_blog_personal_collection(request, slug):
     data = {}
     try:

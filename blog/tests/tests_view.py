@@ -1,5 +1,5 @@
 import pytest
-from blog.models import Blog, Vote, Comment, References
+from blog.models import Blog, Vote, Comment, References, TaggedBlogs
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from account.models import Token
@@ -145,20 +145,65 @@ def test_toggle_blog_vote_shouldToggleVoteOnBlog(auth_api_client, create_dataset
 
 
 @pytest.mark.django_db
-def test_api_get_personal_collection():
-    pass
+def test_api_get_personal_collection(auth_api_client, create_dataset, create_user):
+    blog, community = create_dataset()
+    user = create_user()
+    url = reverse("blog:get_personal_collection")
+    assert TaggedBlogs.objects.count() == 0
+    TaggedBlogs.objects.create(user=user, blog=blog)
+    response = auth_api_client.get(url)
+    data = response.data
+    assert response.status_code == 200
+    assert len(data) == 1
+    assert TaggedBlogs.objects.count() == 1
 
 
 @pytest.mark.django_db
-def test_api_add_personal_collection():
-    pass
+def test_api_add_personal_collection(auth_api_client, create_dataset):
+    blog, community = create_dataset()
+    url = reverse("blog:add_to_collection", kwargs={'slug': blog.slug})
+    assert TaggedBlogs.objects.count() == 0
+    response = auth_api_client.post(url)
+    data = response.data
+    print(data)
+    assert response.status_code == 200
+    assert data['response'] == _("response.success")
+    assert TaggedBlogs.objects.count() == 1
 
 
 @pytest.mark.django_db
-def test_api_delete_from_personal_collection():
-    pass
+def test_api_delete_from_personal_collection(auth_api_client, create_dataset, create_user):
+    blog, community = create_dataset()
+    user = create_user()
+    url = reverse("blog:remove_from_collection", kwargs={'slug': blog.slug})
+    TaggedBlogs.objects.create(user=user, blog=blog)
+    assert TaggedBlogs.objects.count() == 1
+    response = auth_api_client.post(url)
+    data = response.data
+    assert response.status_code == 200
+    assert data['response'] == _("response.success")
+    assert TaggedBlogs.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_api_check_blog_personal_collection():
-    pass
+def test_api_check_blog_personal_collection(auth_api_client, create_dataset, create_user):
+    blog, community = create_dataset()
+    user = create_user()
+    url = reverse("blog:check_in_collection", kwargs={'slug': blog.slug})
+
+    # Blog Not in Collection
+    response = auth_api_client.get(url)
+    data = response.data
+    assert response.status_code == 200
+    assert data['response'] == _("response.success")
+    assert TaggedBlogs.objects.count() == 0
+    assert not data['status']
+
+    # Blog in personal collection
+    TaggedBlogs.objects.create(user=user, blog=blog)
+    response = auth_api_client.get(url)
+    data = response.data
+    assert response.status_code == 200
+    assert data['response'] == _("response.success")
+    assert TaggedBlogs.objects.count() == 1
+    assert data['status']
