@@ -115,8 +115,11 @@ def api_community_subscribe_view(request, slug):
         user = request.user
         if CommunitySubscribers.objects.filter(user=user, community=community):
             CommunitySubscribers.objects.filter(user=user, community=community).delete()
+            community.subscriber_count -= 1
         else:
             CommunitySubscribers(user=user, community=community).save()
+            community.subscriber_count += 1
+        community.save()
         data['response'] = _("response.success")
         return Response(data=data)
     except Communities.DoesNotExist:

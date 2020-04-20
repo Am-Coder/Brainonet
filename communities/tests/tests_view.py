@@ -1,10 +1,11 @@
 import pytest
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
-from communities.models import CommunitySubscribers
+from communities.models import CommunitySubscribers, Communities
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 @pytest.mark.django_db
 def test_api_detail_community_view_shouldReturnCommunityDetailsBySlug(auth_api_client, create_dataset, in_memory_image):
@@ -62,13 +63,17 @@ def test_api_community_subscribe_view_shouldMakeUserSubscribeOrUnsubscribeCommun
     assert CommunitySubscribers.objects.count() == 0
     response = auth_api_client.post(url)
     data = response.data
+    community = Communities.objects.get(slug=community.slug)
     assert CommunitySubscribers.objects.count() == 1
     assert response.status_code == 200
     assert data['response'] == _("response.success")
+    assert community.subscriber_count == 1
 
     # Un Subscribe
     response = auth_api_client.post(url)
     data = response.data
+    community = Communities.objects.get(slug=community.slug)
     assert CommunitySubscribers.objects.count() == 0
     assert response.status_code == 200
     assert data['response'] == _("response.success")
+    assert community.subscriber_count == 0
