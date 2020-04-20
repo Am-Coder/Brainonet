@@ -88,9 +88,30 @@ class Vote(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
 
 
+# TODO -Tagged Blogs Personal Library Put On Halt
+# class TaggedBlogsCollection(models.Model):
+#     collection_name = models.CharField(max_length=15, default="Default")
+#     user = models.ForeignKey(Account, on_delete=models.CASCADE)
+#     slug = models.SlugField(blank=True, unique=True)
+#
+#     class META:
+#         unique_together = ['collection_name', 'user']
+
+
+class TaggedBlogs(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+
+
 @receiver(post_delete, sender=Blog)
 def submission_delete(sender, instance, **kwargs):
     instance.image.delete(False)
+
+# TODO -Tagged Blogs Personal Library Put On Halt
+# def pre_save_blog_collection_post_receiver(sender, instance, *args, **kwargs):
+#     if not instance.slug:
+#         instance.slug = slugify(instance.pk + "-" + instance.collection_name)
+# pre_save.connect(pre_save_blog_collection_post_receiver, sender=TaggedBlogsCollection)
 
 
 def pre_save_blog_post_receiver(sender, instance, *args, **kwargs):

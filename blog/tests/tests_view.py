@@ -142,3 +142,23 @@ def test_toggle_blog_vote_shouldToggleVoteOnBlog(auth_api_client, create_dataset
     assert data['vote_count'] == 0
     assert response.status_code == 200
     assert data['response'] == _("response.success")
+
+
+@pytest.mark.django_db
+def test_api_get_personal_collection():
+    pass
+
+
+@pytest.mark.django_db
+def test_api_add_personal_collection():
+    pass
+
+
+@pytest.mark.django_db
+def test_api_delete_from_personal_collection():
+    pass
+
+
+@pytest.mark.django_db
+def test_api_check_blog_personal_collection():
+    pass

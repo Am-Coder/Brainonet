@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from blog.models import Blog, Comment, References
+from blog.models import Blog, Comment, References, TaggedBlogs
 
 import os
 from django.conf import settings
@@ -159,3 +159,15 @@ class ReferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = References
         fields = ['pk', 'refers', 'description']
+
+# TODO -Tagged Blogs Personal Library Put On Halt
+# class TaggedBlogCollectionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = TaggedBlogsCollection
+#         fields = ['pk', 'collection_name', 'slug']
+
+
+class TaggedBlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaggedBlogs
+        fields = ['pk', 'blog']

@@ -7,11 +7,15 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 from account.models import Account
-from blog.models import Blog, Comment, Vote, References
-from blog.api.serializers import CommentSerializer, BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, CommentCreateSerializer, ReferenceSerializer
+from blog.models import Blog, Comment, Vote, References, TaggedBlogs
+from blog.api.serializers import TaggedBlogSerializer, \
+    CommentSerializer, BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, \
+    CommentCreateSerializer, ReferenceSerializer
 from django.utils.translation import ugettext_lazy as _
 import logging
 from blog.utils import vote_handler
+import json
+from django.db import IntegrityError
 
 logger = logging.getLogger(__name__)
 
@@ -191,6 +195,72 @@ def has_voted(request, slug):
             data['status'] = True
         else:
             data['response'] = _("response.success")
+            data['status'] = False
+    except Blog.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
+
+    finally:
+        return Response(data)
+
+
+def api_get_personal_collection(request):
+    data = {}
+    try:
+        user = request.user
+
+        if TaggedBlogs.objects.filter(user=user).exists():
+            serializer = TaggedBlogSerializer(TaggedBlogs.objects.create(user=user), many=True)
+            data = serializer.data
+            return Response(data)
+    except Account.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.account.not.found")
+        return Response(data)
+
+
+def api_add_personal_collection(request, slug):
+    data ={}
+    try:
+        user = request.user
+        blog = Blog.objects.get(slug=slug)
+        data['response'] = _("response.success")
+        if not TaggedBlogs.objects.filter(user=user, blog=blog).exists():
+            TaggedBlogs.objects.create(user=user, blog=blog)
+    except Blog.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
+
+    finally:
+        return Response(data)
+
+
+def api_delete_from_personal_collection(request, slug):
+    data ={}
+    try:
+        user = request.user
+        blog = Blog.objects.get(slug=slug)
+        data['response'] = _("response.success")
+        if TaggedBlogs.objects.filter(user=user, blog=blog).exists():
+            TaggedBlogs.objects.filter(user=user, blog=blog).delete()
+    except Blog.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
+
+    finally:
+        return Response(data)
+
+
+def api_check_blog_personal_collection(request, slug):
+    data = {}
+    try:
+        user = request.user
+        blog = Blog.objects.get(slug=slug)
+        data['response'] = _("response.success")
+
+        if TaggedBlogs.objects.filter(user=user, blog=blog).exists():
+            data['status'] = True
+        else:
             data['status'] = False
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
