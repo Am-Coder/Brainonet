@@ -2,6 +2,7 @@ import pytest
 from blog.models import Blog, Vote, Comment, References
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from account.models import Token
 
 
 @pytest.mark.django_db
@@ -36,6 +37,34 @@ def test_api_referencelistview(auth_api_client):
     data = response.data
     assert len(data['results']) > 0
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_api_commentbyuserlistview(create_user, api_client, create_dataset_with_image):
+    blog, community = create_dataset_with_image()
+    user1 = create_user(mobile_number="111111", first_name="Sasuke", last_name="Uchiha")
+    user2 = create_user(mobile_number="111112", first_name="Madara", last_name="Uchiha")
+    Comment.objects.create(comment="hi", blog=blog, user=user1)
+    Comment.objects.create(comment="hello", blog=blog, user=user1)
+    Comment.objects.create(comment="hi", blog=blog, user=user2)
+
+    print(Comment.objects.filter(user=user1).count())
+    token1, s1 = Token.objects.get_or_create(user=user1)
+    token2, s2 = Token.objects.get_or_create(user=user2)
+
+    api_client.credentials(HTTP_AUTHORIZATION='Token ' + token1.key)
+    url = reverse("blog:comment-list-user")
+    response1 = api_client.get(url)
+    data1 = response1.data
+
+    api_client.credentials(HTTP_AUTHORIZATION='Token ' + token2.key)
+    response2 = api_client.get(url)
+    data2 = response2.data
+
+    assert len(data1['results']) == 2
+    assert response1.status_code == 200
+    assert len(data2['results']) == 1
+    assert response2.status_code == 200
 
 
 @pytest.mark.django_db
