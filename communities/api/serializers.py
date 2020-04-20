@@ -18,7 +18,7 @@ class CommunitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Communities
-        fields = ['pk', 'name', 'slug', 'description', 'backgroundimage', 'avatarimage', 'date_updated']
+        fields = ['pk', 'name', 'slug', 'description', 'backgroundimage', 'subscriber_count', 'avatarimage', 'date_updated']
 
     def validate_avatarimage_url(self, community):
         avatarimage = community.avatarimage
