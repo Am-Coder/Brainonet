@@ -9,8 +9,8 @@ from blog.api.views import(
   api_detail_blog_view,
   api_update_blog_view,
   ApiBlogListView,
-  ApiReferenceListView
-
+  ApiReferenceListView,
+  ApiCommentByUserListView
 )
 
 app_name = 'blog'
@@ -22,6 +22,7 @@ urlpatterns = [
   path('create', api_create_blog_view, name="create"),
   path('blog-list', ApiBlogListView.as_view(), name="blog-list"),
   path('reference-list', ApiReferenceListView.as_view(), name="reference-list"),
+  path('comment-list', ApiCommentByUserListView.as_view(), name="comment-list-user"),
   path('<slug>/addcomment', add_comment, name="add_comment"),
   path('<slug>/<commentid>/deletecomment', delete_comment, name="delete_comment"),
   path('<slug>/vote', toggle_blog_vote, name="blog_vote"),

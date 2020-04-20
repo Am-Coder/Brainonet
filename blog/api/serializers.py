@@ -144,6 +144,17 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         return comment
 
 
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['comment', 'timestamp']
+
+    def validate_comment(self, comment):
+        if len(comment) > 250:
+            raise serializers.ValidationError("Maximum Comment length exceeded")
+        return comment
+
+
 class ReferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = References

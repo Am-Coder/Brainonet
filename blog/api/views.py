@@ -8,7 +8,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 from account.models import Account
 from blog.models import Blog, Comment, Vote, References
-from blog.api.serializers import BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, CommentCreateSerializer, ReferenceSerializer
+from blog.api.serializers import CommentSerializer, BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, CommentCreateSerializer, ReferenceSerializer
 from django.utils.translation import ugettext_lazy as _
 import logging
 from blog.utils import vote_handler
@@ -217,3 +217,15 @@ class ApiReferenceListView(ListAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('refers', 'description')
 
+
+class ApiCommentByUserListView(ListAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+
+    def get_queryset(self):
+        user = self.request.user
+        return Comment.objects.filter(user=user)
