@@ -35,6 +35,7 @@ class Blog(models.Model):
     community = models.ForeignKey(Communities, on_delete=models.CASCADE)
     references = models.ManyToManyField(References)
     vote_count = models.PositiveIntegerField(default=0, verbose_name="vote count")
+    view_count = models.PositiveIntegerField(default=0, verbose_name="view count")
     slug = models.SlugField(blank=True, unique=True)
     approved = models.BooleanField(default=False)
 

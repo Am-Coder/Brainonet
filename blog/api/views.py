@@ -25,6 +25,8 @@ def api_detail_blog_view(request, slug):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
+        blog.view_count += 1
+        blog.save()
         serializer = BlogSerializer(blog)
         return Response(serializer.data)
 

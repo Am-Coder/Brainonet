@@ -11,12 +11,16 @@ def test_api_detail_blog_view_shouldReturnBlogDetailsBySlug(auth_api_client, cre
     blog, community = create_dataset()
     blog.image = url
     blog.save()
+    assert blog.view_count == 0
     url = reverse("blog:detail", kwargs={'slug': blog.slug})
     response = auth_api_client.get(url)
     data = response.data
+    blog = Blog.objects.get(slug=blog.slug)
     assert response.status_code == 200
     assert blog.pk == data['pk']
     assert blog.title == data['title']
+    assert blog.view_count == 1
+    assert data['view_count'] == blog.view_count
 
 
 @pytest.mark.django_db

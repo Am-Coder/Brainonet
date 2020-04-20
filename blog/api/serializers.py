@@ -18,7 +18,7 @@ class BlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ['pk', 'title', 'description', 'slug', 'body', 'image', 'date_updated', 'community']
+        fields = ['pk', 'title', 'description', 'slug', 'body', 'image', 'date_updated', 'vote_count', 'view_count', 'community']
 
     def get_communtiy_name(self, blog):
         community = blog.community.name
