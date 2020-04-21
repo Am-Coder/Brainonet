@@ -102,7 +102,7 @@ LOGGING = {
 }
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -193,7 +193,7 @@ USE_TZ = True
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'media'),
-    os.path.join(BASE_DIR, 'personal/static'),
+    # os.path.join(BASE_DIR, 'personal/static'),
 
 ]
 

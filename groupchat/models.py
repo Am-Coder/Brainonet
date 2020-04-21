@@ -1,7 +1,6 @@
 from django.db import models
 from communities.models import Communities
 from account.models import Account
-# Create your models here.
 from channels.auth import AuthMiddlewareStack, CookieMiddleware
 from django.db import close_old_connections
 from django.contrib.auth.models import AnonymousUser

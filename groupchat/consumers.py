@@ -6,12 +6,15 @@ from account.models import Token
 from communities.models import Communities, CommunitySubscribers
 from django.shortcuts import Http404
 from channels.db import database_sync_to_async
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        # print("XXXXX")
+        logger.info("Men Have Meet")
         self.room_group_name = 'chat_%s' % self.room_name
 
         # Join room group
@@ -23,8 +26,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave room group
-        # print("disconnect")
-        await self.channel_layer.group_discard(
+            logger.info("MEN left")
+            await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
@@ -36,12 +39,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # message = text_data_json['message']
         auth = text_data_json['auth']
         if auth:
-            # print("Authenticating")
+            logger.info("Authenticating")
             token = text_data_json['token']
             await self.validate_token(token)
         else:
             if self.scope['user']:
-                # print("WebSocketRecieve = " + text_data_json['message'])
+                logger.info("WebSocketRecieve = " + text_data_json['message'])
                 await self.message_save_utility(
                     self.scope['token'],
                     self.scope['url_route']['kwargs']['room_name'],
@@ -61,7 +64,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Handler to Receive message from room group
     async def chat_message(self, event):
         message = event['message']
-        # print("Recieved = "+message)
+        logger.info("Recieved = "+message)
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message
@@ -88,11 +91,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def validate_token(self, token):
         try:
             token = Token.objects.get(key=token)
-            # print("Token Verification Done")
+            logger.info("Token Verification Done")
             self.scope['user'] = token.user
             self.scope['token'] = token
         except Token.DoesNotExist:
-            # print("Verification Failed")
+            logger.info("Verification Failed")
             self.scope['user'] = None
 
 

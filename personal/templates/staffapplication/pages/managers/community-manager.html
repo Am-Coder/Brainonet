@@ -1,4 +1,4 @@
-{% extends "admin/base.html" %}
+{% extends "staffapplication/base.html" %}
 {% block panel_block %}
     {% load widget_tweaks %}
     <div class="col-12 grid-margin">
@@ -12,15 +12,15 @@
         </div>
     </div>
 
-    <div class="add-blog">
+    <div class="add-community">
         <div class="col-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h4 class="card-title">Blog</h4>
+                <h4 class="card-title">Community</h4>
                 <p class="card-description"> Add </p>
-                <form class="forms-sample" method="post" enctype="multipart/form-data" action="{% url 'personal:add_blog' %}">
+                <form class="forms-sample" enctype="multipart/form-data" method="post" action="{% url 'personal:add_community' %}">
                     {% csrf_token %}
-                    {% for field in blogForm.visible_fields %}
+                    {% for field in communityForm.visible_fields %}
                     <div class="form-group">
                         {{ field.label_tag }}
                         {% render_field field class="form-control" %}
@@ -33,24 +33,24 @@
         </div>
     </div>
 
-    <div class="update-blog" style="display: none">
+    <div class="update-community" style="display: none">
         <div class="col-12 grid-margin">
             <div class="card">
                 <div class="card-body">
                     <div class="search-bar">
-                        <form class="d-flex align-items-center h-100" method="get" id="blog-search">
+                        <form class="d-flex align-items-center h-100" method="get" id="community-search">
                           <div class="input-group">
                             <div class="input-group-prepend bg-transparent">
                               <i class="input-group-text border-0 mdi mdi-magnify"></i>
                             </div>
-                            <input type="text" name="search" class="form-control bg-transparent border-0" placeholder="Give title or description of blog">
+                            <input type="text" name="search" class="form-control bg-transparent border-0" placeholder="Give name or description of community">
                           </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="blogcontainer" id="content-container">
+        <div class="communitycontainer" id="content-container">
                 <div class="row">
 
                 </div>
@@ -62,13 +62,6 @@
 
 
     </div>
-{% endblock %}
-
-{% block footer %}
-    {% load static %}
-    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
-
-    {{ blogForm.media }}
 {% endblock %}
 
 {% block custom_scripts %}
@@ -83,7 +76,6 @@
                 // scroll: $("#PostItemContainer").scrollTop(),
                 html: $("#content-container").html()
             };
-            console.log(data);
             sessionStorage.setItem("list_html",JSON.stringify(data));
         };
 
@@ -91,12 +83,10 @@
             if (!sessionStorage)
                 return;
             var data = sessionStorage.getItem("list_html");
-            // console.log(data);
             if (!data)
                 return null;
             return JSON.parse(data);
         };
-
 
         function send_request(search){
 
@@ -105,18 +95,18 @@
                 container.innerHTML = "";
                 console.log(data);
                 for(var i in data.results ) {
-                    let blog = data.results[i];
+                    let community = data.results[i];
                     let item = document.createElement("div");
                     item.setAttribute("class","card");
                     item.setAttribute("style","width: 18rem; margin: 1rem");
-                    item.innerHTML  = '<img src="'+blog.image+'" style="width:100%" class="card-img-top">'+
+                    item.innerHTML  = '<img src="'+community.avatarimage+'" style="width:100%" class="card-img-top">'+
                                     '<div class="card-body">'+
-                                    '<h4 class="card-title">'+blog.title+'</h4>'+
-                                    '<p class="card-text">' + blog.description +'</p>'+
-                                     // TODO Try to make these urls dynamic
-                                    '<a href= "api/personal/staffhome/editblog/'+blog.slug+'" class="card-link"><i class="mdi mdi-lead-pencil mdi-24px"></i></a>'+
-                                    '<a href="api/personal/staffhome/deleteblog/'+blog.slug+'" class="card-link"><i class="mdi mdi-delete mdi-24px"></i></a>'+
-                                    '<a href="api/personal/staffhome/bloghistory/'+blog.slug+'" class="card-link"><i class="mdi mdi-history mdi-24px"></i></a>'+
+                                    '<h4 class="card-title">'+community.name+'</h4>'+
+                                    '<p class="card-text">' + community.description +'</p>'+
+                                    // TODO Try to make these urls dynamic
+                                    '<a href= "api/personal/staffhome/editcommunity/'+community.slug+'" class="card-link"><i class="mdi mdi-lead-pencil mdi-24px"></i></a>'+
+                                    '<a href="api/personal/staffhome/deletecommunity/'+community.slug+'" class="card-link"><i class="mdi mdi-delete mdi-24px"></i></a>'+
+                                    '<a href="api/personal/staffhome/communityhistory/'+community.slug+'" class="card-link"><i class="mdi mdi-history mdi-24px"></i></a>'+
                                     '</div>';
                     container.appendChild(item);
 
@@ -143,38 +133,37 @@
         }
 
         $( () => {
-
             //TODO this setting is for django CORS which is not working correctly, make it work
             $.ajaxSetup({xhrFields: { withCredentials: true } });
             let page = 1;
 
-            $("#add").on('click', () => {
-                 $(".add-blog").show();
-                 $(".update-blog").hide();
+            $("#add").click(() => {
+                 $(".add-community").show();
+                 $(".update-community").hide();
             });
             $("#update").click(() => {
-                 $(".add-blog").hide();
-                 $(".update-blog").show();
+                 $(".add-community").hide();
+                 $(".update-community").show();
             });
 
 
-            $("#blog-search").submit((event) => {
+            $("#community-search").submit((event) => {
                 event.preventDefault();
-                let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
+                let search = "{% url 'personal:community-list' %}?page="+page+"&"+$("#community-search").serialize();
                 send_request(search);
             });
 
             //back button feature
             {% if back %}
-                $(".add-blog").hide();
-                $(".update-blog").show();
+                $(".add-community").hide();
+                $(".update-community").show();
                 let data = restoreData();
                 if( data )
                     $("#content-container").html(data.html);
                 console.log(data);
             {% else %}
                 //Default show all
-                let search = "{% url 'personal:blog-list' %}?page="+page+"&"+$("#blog-search").serialize();
+                let search = "{% url 'personal:community-list' %}?page="+page+"&"+$("#community-search").serialize();
                 send_request(search);
             {% endif %}
 
@@ -192,9 +181,8 @@
                 return false;
             });
 
-        });
 
-
+        })
 
     </script>
 {% endblock %}
