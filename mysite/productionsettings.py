@@ -25,7 +25,7 @@ SECRET_KEY = '41ws7i1u1n!7a)wnutc(4+)!xq(f+(az6e+#ssan5ka*f9(iur'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '159.89.175.201', 'www.brainonet.com', 'brainonet.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.89.175.201', 'www.brainonet.com', 'brainonet.com']
 
 # if DEBUG:
 #     EMAIL_BACKEND = 'django.core.mail.backends.console.EamilBackend'
@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'channels',
     'groupchat',
     'widget_tweaks',
+    'storages',
+
     # 'account.models.'
     # 'autocomplete_light',
     # 'rest_framework.authy',

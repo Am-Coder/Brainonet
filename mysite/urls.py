@@ -49,6 +49,4 @@ handler500 = personal_views.error_500
 
 
 if settings.DEBUG:
-    urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
