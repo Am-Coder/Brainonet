@@ -102,7 +102,7 @@ LOGGING = {
 }
 
 MIDDLEWARE = [
-    # 'django.middleware.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
