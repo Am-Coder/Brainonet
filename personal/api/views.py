@@ -20,9 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.response import Response
 import cv2
 import logging
-import numpy as np
 from personal.utils import get_token_from_cookie, get_opencv_img_from_buffer, get_image_search_results
-from django.http import HttpResponseGone
 
 logger = logging.getLogger(__name__)
 
