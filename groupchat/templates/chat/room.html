@@ -14,9 +14,16 @@
     var roomName = {{ room_name_json }};
 
     document.cookie = 'X-Authorization= 1212';
-    var chatSocket = new WebSocket(
-        'ws://' + window.location.host +
-        '/ws/groupchat/' + roomName + '/');
+    var ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    var loc1 = ws_scheme + '://' + window.location.host +
+         window.location.pathname +
+        '/ws/groupchat/' + roomName + '/';
+    var loc = ws_scheme + '://' + window.location.host +
+        '/ws/groupchat/' + roomName + '/';
+   console.log(loc);
+   console.log(loc1);
+
+    var chatSocket = new WebSocket(loc);
 
     chatSocket.onmessage = function(e) {
         let data = JSON.parse(e.data);
@@ -32,7 +39,7 @@
         console.log(e);
         chatSocket.send(JSON.stringify({
             'auth' : true,
-            'token' : '0a3f9bf91d0ad2544d279dfda7372eed357be584'
+            'token' : 'f5967ae672dbf4c3f2924f156cb343e7c158597c'
         }))
     };
 
