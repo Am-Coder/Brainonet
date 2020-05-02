@@ -31,7 +31,7 @@ urlpatterns = [
     path('api/exposeunits/', include('exposeunits.api.urls', 'exposeunit_api')),
     path('api/personal/', include('personal.api.urls', 'personal_api')),
     path('api/groupchat/', include('groupchat.api.urls', 'groupchat_api')),
-    path('api/recommend/', include('recommend.api.urls'), 'recommendation_api'),
+    path('api/recommend/', include('recommend.api.urls', 'recommendation_api')),
     # AutoComplete
     # re_path(r'^select2/', include('django_select2.urls')),
 

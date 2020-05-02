@@ -1,7 +1,7 @@
 # This environment variable needs to be set first as channels uses it
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.productionsettings')
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.productionsettings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
 import django
 django.setup()
