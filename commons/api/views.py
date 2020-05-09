@@ -1,5 +1,4 @@
 from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from account.models import TokenAuthentication
 from rest_framework.response import Response
@@ -15,7 +14,6 @@ from .serializers import CommonsBlogSerializer, CommonsAccountSerializer, Common
 class ApiRelatedContentView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = PageNumberPagination
 
     def get(self, request):
         search_by = request.GET['query']
