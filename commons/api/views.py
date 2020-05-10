@@ -8,6 +8,8 @@ from account.models import Account
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from .serializers import CommonsBlogSerializer, CommonsAccountSerializer, CommonsCommunitySerializer
+from django.db.models.functions import Concat
+from django.db.models import Value
 
 
 # Create your views here.
@@ -27,10 +29,16 @@ class ApiRelatedContentView(APIView):
             if communities:
                 data['communities'] = CommonsCommunitySerializer(communities, many=True).data
 
-            users = Account.objects.filter(Q(first_name__contains=search_by) | Q(last_name__contains=search_by),
-                                           is_admin=False, is_staff=False)
+            # users = Account.objects.annotate(name=Concat('first_name', Value(' '),
+            #                                              'last_name'), ).filter(Q(first_name__contains=search_by) |
+            #                                                                     Q(last_name__contains=search_by),
+            #                                                                     is_admin=False, is_staff=False)
+            users = Account.objects.annotate(name=Concat('first_name', Value(' '),
+                                                         'last_name'), ).filter(name__icontains=search_by,
+                                                                                is_admin=False, is_staff=False)
+
             if users:
-                data['users'] = CommonsAccountSerializer(users, many=True)
+                data['users'] = CommonsAccountSerializer(users, many=True).data
         else:
             data['response'] = _("response.error")
             data['error_messgage'] = "Give at least 6 characters"
