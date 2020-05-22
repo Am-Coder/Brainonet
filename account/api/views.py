@@ -29,7 +29,6 @@ class OTPAuthenticate(APIView):
     permission_classes = []
 
     def post(self, request):
-        # data = {}
         info = AuthiSerializer(data=request.data)
         if info.is_valid(raise_exception=True):
             info = info.data
@@ -57,7 +56,7 @@ class Login(APIView):
 class Logout(APIView):
 
     # authentication_classes = []
-    permission_classes = [IsAuthenticated]
+    permission_classes =[IsAuthenticated]
 
     def post(self, request):
         data = logout_check(request)
