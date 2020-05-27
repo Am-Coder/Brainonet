@@ -10,7 +10,7 @@ from account.models import Account
 from blog.models import Blog, Comment, Vote, References, TaggedBlogs
 from blog.api.serializers import TaggedBlogSerializer, \
     CommentSerializer, BlogSerializer, BlogCreateSerializer, BlogUpdateSerializer, \
-    CommentCreateSerializer, ReferenceSerializer
+    CommentCreateSerializer, ReferenceSerializer, CommentBlogSerializer
 from django.utils.translation import ugettext_lazy as _
 import logging
 from blog.utils import vote_handler
@@ -284,8 +284,8 @@ class ApiBlogListView(ListAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('title', 'description', 'community__name')
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['title', 'description', 'community__name']
 
 
 class ApiReferenceListView(ListAPIView):
@@ -305,7 +305,22 @@ class ApiCommentByUserListView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('comment', 'blog__title')
 
     def get_queryset(self):
         user = self.request.user
-        return Comment.objects.filter(user=user)
+        return Comment.objects.select_related().filter(user=user)
+
+
+class ApiCommentByBlogListView(ListAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentBlogSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('comment', 'user__first_name')
+
+    def get_queryset(self):
+        slug = self.kwargs['slug']
+        return Comment.objects.select_related().filter(blog=Blog.objects.get(slug=slug))

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.storage import FileSystemStorage
 from blog.utils import is_image_aspect_ratio_valid, is_image_size_valid
+from account.api.serializers import AccountSerializer
 
 IMAGE_SIZE_MAX_BYTES = 1024 * 1024 * 3
 MIN_TITLE_LENGTH = 5
@@ -15,6 +16,25 @@ MIN_BODY_LENGTH = 50
 class BlogSerializer(serializers.ModelSerializer):
     community = serializers.SerializerMethodField('get_communtiy_name')
     image = serializers.SerializerMethodField('validate_image_url')
+
+    """
+    A ModelSerializer that takes an additional `fields` argument that
+    controls which fields should be displayed.
+    """
+
+    def __init__(self, *args, **kwargs):
+        # Don't pass the 'fields' arg up to the superclass
+        fields = kwargs.pop('fields', None)
+
+        # Instantiate the superclass normally
+        super(BlogSerializer, self).__init__(*args, **kwargs)
+
+        if fields is not None:
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
     class Meta:
         model = Blog
@@ -145,14 +165,26 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+
+    blog = BlogSerializer(fields=('title', 'slug', 'community', 'date_updated'))
+
     class Meta:
         model = Comment
-        fields = ['comment', 'timestamp']
+        fields = ['comment', 'timestamp', 'blog']
 
     def validate_comment(self, comment):
         if len(comment) > 250:
             raise serializers.ValidationError("Maximum Comment length exceeded")
         return comment
+
+
+class CommentBlogSerializer(serializers.ModelSerializer):
+
+    user = AccountSerializer()
+
+    class Meta:
+        model = Comment
+        fields = ['comment', 'timestamp', 'user']
 
 
 class ReferenceSerializer(serializers.ModelSerializer):
