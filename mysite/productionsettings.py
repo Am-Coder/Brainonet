@@ -57,12 +57,26 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'storages',
     'rest_framework_swagger',
+    'drf_yasg',
 
     # 'account.models.'
     # 'autocomplete_light',
     # 'rest_framework.authy',
 ]
 
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
+    'SHOW_REQUEST_HEADERS': True,
+
+}
 
 AUTH_USER_MODEL = 'account.Account'
 # AUTHENTICATION_BACKENDS = (
