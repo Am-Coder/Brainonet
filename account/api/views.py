@@ -7,7 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils.translation import ugettext_lazy as _
 import logging
 from account.utils import otp_send, otp_authenticate, login_check, logout_check
-
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 logger = logging.getLogger(__name__)
 
 
@@ -15,6 +16,12 @@ class OTPGenerator(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'number': openapi.Schema(type=openapi.TYPE_STRING, description='Mobile Number'),
+        }
+    ))
     def post(self, request):
         num = json.loads(request.body)['number']
 
@@ -28,6 +35,7 @@ class OTPAuthenticate(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @swagger_auto_schema(request_body=AuthiSerializer)
     def post(self, request):
         info = AuthiSerializer(data=request.data)
         if info.is_valid(raise_exception=True):
@@ -43,6 +51,7 @@ class Login(APIView):
     # authentication_classes = []
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(request_body=AccountSerializer)
     def post(self, request):
         info = AccountSerializer(data=request.data)
         if info.is_valid(raise_exception=True):

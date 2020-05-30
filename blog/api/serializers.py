@@ -200,6 +200,8 @@ class ReferenceSerializer(serializers.ModelSerializer):
 
 
 class TaggedBlogSerializer(serializers.ModelSerializer):
+    blog = BlogSerializer(fields=('title', 'slug', 'community', 'date_updated'))
+
     class Meta:
         model = TaggedBlogs
         fields = ['pk', 'blog']

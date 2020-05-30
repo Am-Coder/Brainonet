@@ -10,13 +10,18 @@ from django.utils.translation import ugettext_lazy as _
 from .serializers import CommonsBlogSerializer, CommonsAccountSerializer, CommonsCommunitySerializer
 from django.db.models.functions import Concat
 from django.db.models import Value
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 # Create your views here.
 class ApiRelatedContentView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+    # Swagger query parameter
+    query_param = openapi.Parameter('query', openapi.IN_QUERY, description="search parameter", type=openapi.TYPE_STRING)
 
+    @swagger_auto_schema(manual_parameters=[query_param])
     def get(self, request):
         search_by = request.GET['query']
         data = {}

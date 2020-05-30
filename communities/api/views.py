@@ -11,6 +11,8 @@ from communities.api.serializers import CommunitySerializer, CommunityCreateSeri
 from django.utils.translation import ugettext_lazy as _
 import logging
 from communities.utils import check_subscribers
+from drf_yasg.utils import swagger_auto_schema
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,6 +30,7 @@ def api_detail_community_view(request, slug):
 
 
 # Not Used
+@swagger_auto_schema(methods=['put'], request_body=CommunityUpdateSerializer)
 @api_view(['PUT', ])
 @permission_classes((IsAuthenticated,))
 def api_update_community_view(request, slug):
@@ -77,6 +80,7 @@ def api_delete_community_view(request, slug):
 
 
 # Not Used
+@swagger_auto_schema(methods=['post'], request_body=CommunityCreateSerializer)
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def api_create_community_view(request):
@@ -106,6 +110,7 @@ def api_create_community_view(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['post'])
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def api_community_subscribe_view(request, slug):

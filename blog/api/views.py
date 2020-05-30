@@ -14,6 +14,7 @@ from blog.api.serializers import TaggedBlogSerializer, \
 from django.utils.translation import ugettext_lazy as _
 import logging
 from blog.utils import vote_handler
+from drf_yasg.utils import swagger_auto_schema
 import json
 from django.db import IntegrityError
 
@@ -36,6 +37,7 @@ def api_detail_blog_view(request, slug):
 
 
 # Not being used now
+@swagger_auto_schema(methods=['put'], request_body=BlogUpdateSerializer)
 @api_view(['PUT', ])
 @permission_classes((IsAuthenticated,))
 def api_update_blog_view(request, slug):
@@ -82,6 +84,7 @@ def api_delete_blog_view(request, slug):
 
 
 # Not being used now
+@swagger_auto_schema(methods=['post'], request_body=BlogCreateSerializer)
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def api_create_blog_view(request):
@@ -108,6 +111,7 @@ def api_create_blog_view(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['post'], request_body=CommentCreateSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_comment(request, slug):
@@ -214,7 +218,7 @@ def api_get_personal_collection(request):
         if TaggedBlogs.objects.filter(user=user).exists():
             serializer = TaggedBlogSerializer(TaggedBlogs.objects.filter(user=user), many=True)
             data = serializer.data
-            return Response(data)
+        return Response(data)
     except Account.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.account.not.found")

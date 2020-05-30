@@ -20,19 +20,16 @@ from django.conf import settings
 from django.conf.urls import handler400, handler403, handler404, handler500
 from personal.api import views as personal_views
 from rest_framework import permissions
-
-# from rest_framework_swagger.views import get_swagger_view
-# schema_view = get_swagger_view(title="Brainonet API Documentation")
-
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="Brainonet API",
       default_version='v1',
-      description="Test description",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
+      description="Application API's",
+      terms_of_service="https://www.brainonet.com/policies/terms/",
+      contact=openapi.Contact(email="contact@brainonet.com"),
       license=openapi.License(name="BSD License"),
    ),
    public=True,
