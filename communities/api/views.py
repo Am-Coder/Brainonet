@@ -152,7 +152,7 @@ class ApiCommunityListView(ListAPIView):
     queryset = Communities.objects.all()
     serializer_class = CommunitySerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = ()
+    permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('name', 'description')

@@ -56,11 +56,13 @@ INSTALLED_APPS = [
     'groupchat',
     'widget_tweaks',
     'storages',
+    'rest_framework_swagger',
 
     # 'account.models.'
     # 'autocomplete_light',
     # 'rest_framework.authy',
 ]
+
 
 AUTH_USER_MODEL = 'account.Account'
 # AUTHENTICATION_BACKENDS = (
