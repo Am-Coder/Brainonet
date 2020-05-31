@@ -304,7 +304,8 @@
 
     <script>
       $(() => {
-        $("div.nav-profile-text > span:first-child,p:first-child").text($.cookie("User"));
+        let user = JSON.parse($.cookie("User"))
+        $("div.nav-profile-text > span:first-child,p:first-child").text(user.firstname+" "+user.lastname);
       })
     </script>
     {% block custom_scripts %}

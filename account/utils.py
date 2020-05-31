@@ -43,7 +43,8 @@ def otp_authenticate(otp, mobile_no):
                     token = Token.objects.create(user=user)
                     data['response'] = _("response.success")
                     data['token'] = token.key
-                    data['username'] = user.first_name + " " + user.last_name
+                    data['first_name'] = user.first_name
+                    data['last_name'] = user.last_name
                 except Account.DoesNotExist:
                     user = Account()
                     user.mobile_number = mobile_no
