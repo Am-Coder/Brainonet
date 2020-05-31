@@ -163,18 +163,18 @@
                       console.log(data);
                       if(data["response"] === "success") {
                           console.log(data['token'].trim());
-                          let username={};
-                          username.firstname = data['first_name'];
-                          username.lastname = data['last_name'];
-
+                          let user={};
+                          user.firstname = data['first_name'];
+                          user.lastname = data['last_name'];
+                          user.role = data['role'];
                           if( $('#keep').is(':checked') ){
 
                           $.cookie('Authorization', "Token ".concat(data['token'].trim()),
                                   { expires: 14 });
-                          $.cookie('User', JSON.stringify(username), { expires: 14 });
+                          $.cookie('User', JSON.stringify(user), { expires: 14 });
                           } else {
                             $.cookie('Authorization', "Token ".concat(data['token'].trim()));
-                            $.cookie('User', JSON.stringify(username));
+                            $.cookie('User', JSON.stringify(user));
                           }
                           $("#staffHomeForm").submit();
 

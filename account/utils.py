@@ -45,6 +45,7 @@ def otp_authenticate(otp, mobile_no):
                     data['token'] = token.key
                     data['first_name'] = user.first_name
                     data['last_name'] = user.last_name
+                    data['role'] = "Staff"
                 except Account.DoesNotExist:
                     user = Account()
                     user.mobile_number = mobile_no
