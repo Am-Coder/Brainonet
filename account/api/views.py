@@ -23,8 +23,8 @@ class OTPGenerator(APIView):
         }
     ))
     def post(self, request):
-        num = json.loads(request.body)['number']
-
+        # num = json.loads(request.body)['phoneNumber']
+        num = request.POST.get('phoneNumber')
         if Authi.objects.filter(mobile_number=num).exists():
             Authi.objects.get(mobile_number=num).delete()
         data = otp_send(num)

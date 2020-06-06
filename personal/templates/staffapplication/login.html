@@ -117,9 +117,9 @@
               $.ajax({
                   type:"POST",
                   cache:"false",
-                  contentType : "application/json",//type of data being send to server
+                  //contentType : "application/json",//type of data being send to server
                   url:"{% url 'account:get_otp' %}",
-                  data : JSON.stringify({number: $("#id_number").val()}),
+                  data : { 'phoneNumber': $("#id_number").val() },
                   // dataType : "json",//result expected from server
                   //                 //with json return type we can return java objects
                   //                 //With text we can return String from java conroller
