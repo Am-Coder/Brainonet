@@ -16,6 +16,7 @@ from blog.api.views import(
   api_add_personal_collection,
   api_delete_from_personal_collection,
   api_get_personal_collection,
+  api_get_blog_parameters,
 )
 
 app_name = 'blog'
@@ -37,4 +38,5 @@ urlpatterns = [
   path('<slug>/add_to_collection', api_add_personal_collection, name="add_to_collection"),
   path('<slug>/remove_from_collection', api_delete_from_personal_collection, name="remove_from_collection"),
   path('<slug>/check_in_collection', api_check_blog_personal_collection, name="check_in_collection"),
+  path('<slug>/get_blog_parameters', api_get_blog_parameters, name="get_blog_parameters"),
 ]
