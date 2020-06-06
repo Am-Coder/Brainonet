@@ -12,7 +12,6 @@ from account.models import Account, Token
 from dal import autocomplete
 from account.api.form import MobileForm, OtpForm
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from utilities.imsearch import colordescriptor, searcher, createdataset
@@ -21,6 +20,7 @@ from rest_framework.response import Response
 import cv2
 import logging
 from personal.utils import get_token_from_cookie, get_opencv_img_from_buffer, get_image_search_results
+from account.permissions import IsStaff, IsManager, IsAdministrator
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def stafflogin_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def staffhome_view(request):
     context = {}
     context['response'] = _("response.success")
@@ -41,7 +41,7 @@ def staffhome_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def blog_manager_view(request):
     context = {}
     logger.info(request.query_params)
@@ -55,7 +55,7 @@ def blog_manager_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def community_manager_view(request):
     context = {}
     context['response'] = _("response.success")
@@ -67,7 +67,7 @@ def community_manager_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def reference_manager_view(request):
     context = {}
     context['response'] = _("response.success")
@@ -79,7 +79,7 @@ def reference_manager_view(request):
 
 
 class BlogHistoryView(generic.ListView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = Blog
     template_name = "staffapplication/pages/managers/update-job/content-history.html"
     context_object_name = "changeCollection"
@@ -96,7 +96,7 @@ class BlogHistoryView(generic.ListView, APIView):
 
 
 class BlogUpdateView(generic.UpdateView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = Blog
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "staffapplication/pages/managers/update-job/update-form.html"
@@ -124,7 +124,7 @@ class BlogUpdateView(generic.UpdateView):
 
 
 class BlogDeleteView(generic.DeleteView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = Blog
     success_url = reverse_lazy('personal:blog_manager')
     template_name = "staffapplication/pages/managers/update-job/confirm-delete.html"
@@ -144,7 +144,7 @@ class BlogDeleteView(generic.DeleteView, APIView):
 
 
 class CommunityHistoryView(generic.ListView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = Communities
     template_name = "staffapplication/pages/managers/update-job/content-history.html"
     context_object_name = "changeCollection"
@@ -161,7 +161,7 @@ class CommunityHistoryView(generic.ListView, APIView):
 
 
 class CommunityUpdateView(generic.UpdateView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = Communities
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "staffapplication/pages/managers/update-job/update-form.html"
@@ -189,7 +189,7 @@ class CommunityUpdateView(generic.UpdateView):
 
 
 class CommunityDeleteView(generic.DeleteView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = Communities
     success_url = reverse_lazy('personal:community_manager')
     template_name = "staffapplication/pages/managers/update-job/confirm-delete.html"
@@ -209,7 +209,7 @@ class CommunityDeleteView(generic.DeleteView, APIView):
 
 
 class ReferenceHistoryView(generic.ListView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = References
     template_name = "staffapplication/pages/managers/update-job/content-history.html"
     context_object_name = "changeCollection"
@@ -226,7 +226,7 @@ class ReferenceHistoryView(generic.ListView, APIView):
 
 
 class ReferenceUpdateView(generic.UpdateView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = References
     # fields = ['title', 'references', 'description', 'body', 'image', 'community']
     template_name = "staffapplication/pages/managers/update-job/update-form.html"
@@ -254,7 +254,7 @@ class ReferenceUpdateView(generic.UpdateView):
 
 
 class ReferenceDeleteView(generic.DeleteView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = References
     success_url = reverse_lazy('personal:reference_manager')
     template_name = "staffapplication/pages/managers/update-job/confirm-delete.html"
@@ -274,7 +274,7 @@ class ReferenceDeleteView(generic.DeleteView, APIView):
 
 
 class UserListView(generic.ListView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     model = Account
     template_name = "staffapplication/pages/managers/user-manager.html"
     context_object_name = "accountCollection"
@@ -293,7 +293,7 @@ class UserListView(generic.ListView, APIView):
 
 
 class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
@@ -307,7 +307,7 @@ class ReferencesAutocomplete(autocomplete.Select2QuerySetView, APIView):
 
 
 class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaff]
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
@@ -322,7 +322,7 @@ class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def uploadblog(request):
     print(request.FILES)
     blog_form = BlogForm(request.POST, request.FILES)
@@ -335,7 +335,7 @@ def uploadblog(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def uploadreferences(request):
     reference_form = form.ReferencesForm(request.POST)
     if reference_form.is_valid():
@@ -348,7 +348,7 @@ def uploadreferences(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def uploadcommunity(request):
     community_form = CommunityForm(request.POST, request.FILES)
     if community_form.is_valid():
@@ -359,7 +359,7 @@ def uploadcommunity(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def stafflogout(request):
     request.auth.delete()
     response = redirect(reverse("personal:staff_login"))
@@ -375,7 +375,7 @@ def stafflogout(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def fakenews_home(request):
     context = {}
     context['response'] = _("response.success")
@@ -384,7 +384,7 @@ def fakenews_home(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def fakenews_image_search(request):
     context = {}
     image_form = form.ImageSearchForm(request.POST, request.FILES)
@@ -411,7 +411,7 @@ def fakenews_image_search(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsStaff])
 def fakenews_image_dataset(request):
     context = {}
     logger.info("Starting dataset creation ...")

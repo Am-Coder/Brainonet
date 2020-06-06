@@ -2,8 +2,13 @@ import pyotp
 from account.textlocal import sendSMS
 import json
 from django.utils.translation import ugettext_lazy as _
-from account.models import Authi, Account, Token
+from account.models import Authi, Account, Token, MemeberShip, Group
 from django.contrib.auth import logout
+
+GROUP_USER = "User"
+GROUP_STAFF = "Staff"
+GROUP_MANAGER = "Manager"
+GROUP_ADMINISTRATOR = "Administrator"
 
 
 def otp_send(num):
@@ -27,7 +32,7 @@ def otp_send(num):
     return data
 
 
-def otp_authenticate(otp, mobile_no):
+def otp_authenticate(otp, mobile_no, is_cms=False):
     data = {}
     try:
 
@@ -45,18 +50,27 @@ def otp_authenticate(otp, mobile_no):
                     data['token'] = token.key
                     data['first_name'] = user.first_name
                     data['last_name'] = user.last_name
-                    data['role'] = "Staff"
+                    if is_cms:
+                        # If you are not a user then you can have atmost one role among organization job roles
+                        member = MemeberShip.objects.exclude(group=Group.objects.get(group_name=GROUP_USER)).get(account=user)
+                    else:
+                        member = MemeberShip.objects.get(account=user, group=Group.objects.get(group_name=GROUP_USER))
+                    data['role'] = member.group.group_name
+
                 except Account.DoesNotExist:
                     user = Account()
                     user.mobile_number = mobile_no
                     user.save()
                     token = Token.objects.create(user=user)
+                    MemeberShip.objects.create(account=user, group=Group.objects.get(group_name=GROUP_USER))
                     data['response'] = _("response.success")
                     data['token'] = token.key
                 except Token.DoesNotExist:
                     data['response'] = _("response.error")
                     data['error_message'] = _("msg.account.token.expired")
-
+                except MemeberShip.DoesNotExist:
+                    data['response'] = _("response.error")
+                    data['error_message'] = "Invalid Access"
                 finally:
                     return data
 

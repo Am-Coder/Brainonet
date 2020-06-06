@@ -8,10 +8,10 @@ from django.core.paginator import Paginator, EmptyPage
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 from groupchat.api.serializers import MessageSerializer
 from django.utils.translation import ugettext_lazy as _
 import logging
+from account.permissions import IsUser
 
 logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -30,7 +30,7 @@ def room(request, room_name):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsUser,))
 def getchat(request, room_name, page_num):
     data = {}
 

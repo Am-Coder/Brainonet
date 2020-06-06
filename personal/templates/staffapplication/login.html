@@ -155,6 +155,9 @@
                   type:"POST",
                   cache:"false",
                   url:"{% url 'account:auth_otp' %}",
+                  headers: {
+                    "IsCMS": "True",
+                  },
                   timeout:100000,
                   contentType : "application/json",//type of data being send to server
                   data : JSON.stringify({mobile_number: $("#id_number").val(), otp: $("#id_otp").val()}),

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from account.models import Authi
 import json
 from account.api.serializers import AccountSerializer, AuthiSerializer
-from rest_framework.permissions import IsAuthenticated
+from account.permissions import IsUser, IsStaff, IsManager, IsAdministrator
 from django.utils.translation import ugettext_lazy as _
 import logging
 from account.utils import otp_send, otp_authenticate, login_check, logout_check
@@ -37,19 +37,22 @@ class OTPAuthenticate(APIView):
 
     @swagger_auto_schema(request_body=AuthiSerializer)
     def post(self, request):
+
+        # IsCMS header to detect whether it is app login or CMS login
+        is_cms = request.headers.get("IsCMS")
         info = AuthiSerializer(data=request.data)
         if info.is_valid(raise_exception=True):
             info = info.data
         otp = info.get('otp')
         mobile_no = info.get('mobile_number')
-        data = otp_authenticate(otp, mobile_no)
+        data = otp_authenticate(otp, mobile_no, is_cms)
         return Response(data)
 
 
 class Login(APIView):
 
     # authentication_classes = []
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser, IsStaff, IsManager, IsAdministrator]
 
     @swagger_auto_schema(request_body=AccountSerializer)
     def post(self, request):
@@ -65,7 +68,7 @@ class Login(APIView):
 class Logout(APIView):
 
     # authentication_classes = []
-    permission_classes =[IsAuthenticated]
+    permission_classes = [IsUser, IsStaff, IsManager, IsAdministrator]
 
     def post(self, request):
         data = logout_check(request)

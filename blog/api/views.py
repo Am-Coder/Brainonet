@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from account.permissions import IsUser
 from account.models import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET', ])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsUser,))
 def api_detail_blog_view(request, slug):
     try:
         blog = Blog.objects.get(slug=slug)
@@ -39,7 +39,7 @@ def api_detail_blog_view(request, slug):
 # Not being used now
 @swagger_auto_schema(methods=['put'], request_body=BlogUpdateSerializer)
 @api_view(['PUT', ])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsUser,))
 def api_update_blog_view(request, slug):
     try:
         blog = Blog.objects.get(slug=slug)
@@ -68,7 +68,7 @@ def api_update_blog_view(request, slug):
 
 # Not being used now
 @api_view(['DELETE', ])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsUser,))
 def api_delete_blog_view(request, slug):
     try:
         blog = Blog.objects.get(slug=slug)
@@ -86,7 +86,7 @@ def api_delete_blog_view(request, slug):
 # Not being used now
 @swagger_auto_schema(methods=['post'], request_body=BlogCreateSerializer)
 @api_view(['POST'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsUser,))
 def api_create_blog_view(request):
     if request.method == 'POST':
 
@@ -113,7 +113,7 @@ def api_create_blog_view(request):
 
 @swagger_auto_schema(methods=['post'], request_body=CommentCreateSerializer)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def add_comment(request, slug):
     data = request.data
     serializer = CommentCreateSerializer(data=data)
@@ -139,7 +139,7 @@ def add_comment(request, slug):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def delete_comment(request, slug, commentid):
     logger.info(slug)
     logger.info(commentid)
@@ -157,7 +157,7 @@ def delete_comment(request, slug, commentid):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def toggle_blog_vote(request, slug):
     data = {}
     try:
@@ -190,7 +190,7 @@ def toggle_blog_vote(request, slug):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def has_voted(request, slug):
     data = {}
     try:
@@ -209,7 +209,7 @@ def has_voted(request, slug):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def api_get_personal_collection(request):
     data = {}
     try:
@@ -226,7 +226,7 @@ def api_get_personal_collection(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def api_add_personal_collection(request, slug):
     data ={}
     try:
@@ -244,7 +244,7 @@ def api_add_personal_collection(request, slug):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def api_delete_from_personal_collection(request, slug):
     data ={}
     try:
@@ -262,7 +262,7 @@ def api_delete_from_personal_collection(request, slug):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsUser])
 def api_check_blog_personal_collection(request, slug):
     data = {}
     try:
@@ -282,11 +282,37 @@ def api_check_blog_personal_collection(request, slug):
         return Response(data)
 
 
+@api_view(['GET'])
+@permission_classes([IsUser])
+def api_get_blog_parameters(request, slug):
+    data = {}
+    try:
+        user = request.user
+        blog = Blog.objects.get(slug=slug)
+        data['response'] = _("response.success")
+
+        if TaggedBlogs.objects.filter(user=user, blog=blog).exists():
+            data['save'] = True
+        else:
+            data['save'] = False
+        if Vote.objects.filter(user=request.user, blog=Blog.objects.get(slug=slug)).exists():
+            data['response'] = _("response.success")
+            data['vote'] = True
+        else:
+            data['vote'] = False
+    except Blog.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
+
+    finally:
+        return Response(data)
+
+
 class ApiBlogListView(ListAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsUser,)
     pagination_class = PageNumberPagination
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['title', 'description', 'community__name']
@@ -296,7 +322,7 @@ class ApiReferenceListView(ListAPIView):
     queryset = References.objects.all()
     serializer_class = ReferenceSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsUser,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('refers', 'description')
@@ -306,7 +332,7 @@ class ApiCommentByUserListView(ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsUser,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('comment', 'blog__title')
@@ -320,7 +346,7 @@ class ApiCommentByBlogListView(ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentBlogSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsUser,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('comment', 'user__first_name')

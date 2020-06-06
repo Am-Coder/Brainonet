@@ -86,7 +86,7 @@ REST_FRAMEWORK = {
         'account.models.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'account.permissions.IsUser',
     ),
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.PageNumberPagination',

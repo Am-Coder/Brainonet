@@ -5,10 +5,11 @@ from blog.models import Blog, Vote
 from account.models import Account
 from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
+from account.permissions import IsUser
 
 
 @api_view(["GET"])
-@permission_classes([IsAdminUser,])
+@permission_classes([IsUser,])
 def create_dataset_view(request):
     data = {}
     try:
@@ -24,7 +25,7 @@ def create_dataset_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAdminUser,])
+@permission_classes([IsUser,])
 def train_model_view(request):
     data = {}
     try:

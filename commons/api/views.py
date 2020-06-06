@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from account.permissions import IsUser
 from account.models import TokenAuthentication
 from rest_framework.response import Response
 from blog.models import Blog
@@ -17,7 +17,7 @@ from drf_yasg import openapi
 # Create your views here.
 class ApiRelatedContentView(APIView):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsUser,)
     # Swagger query parameter
     query_param = openapi.Parameter('query', openapi.IN_QUERY, description="search parameter", type=openapi.TYPE_STRING)
 
