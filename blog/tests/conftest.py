@@ -5,6 +5,7 @@ from communities.models import Communities
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
+from account.models import Group, MemberShip
 
 
 @pytest.fixture
@@ -43,6 +44,9 @@ def create_user(db, test_mobile_num):
         if 'last_name' not in kwargs:
             kwargs['last_name'] = 'Doe'
         account, s = Account.objects.get_or_create(**kwargs)
+        group, g = Group.objects.get_or_create(group_name="User")
+        MemberShip.objects.create(account=account, group=group)
+
         return account
 
     return make_user

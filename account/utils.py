@@ -2,7 +2,7 @@ import pyotp
 from account.textlocal import sendSMS
 import json
 from django.utils.translation import ugettext_lazy as _
-from account.models import Authi, Account, Token, MemeberShip, Group
+from account.models import Authi, Account, Token, MemberShip, Group
 from django.contrib.auth import logout
 
 GROUP_USER = "User"
@@ -52,9 +52,9 @@ def otp_authenticate(otp, mobile_no, is_cms=False):
                     data['last_name'] = user.last_name
                     if is_cms:
                         # If you are not a user then you can have atmost one role among organization job roles
-                        member = MemeberShip.objects.exclude(group=Group.objects.get(group_name=GROUP_USER)).get(account=user)
+                        member = MemberShip.objects.exclude(group=Group.objects.get(group_name=GROUP_USER)).get(account=user)
                     else:
-                        member = MemeberShip.objects.get(account=user, group=Group.objects.get(group_name=GROUP_USER))
+                        member = MemberShip.objects.get(account=user, group=Group.objects.get(group_name=GROUP_USER))
                     data['role'] = member.group.group_name
 
                 except Account.DoesNotExist:
@@ -62,13 +62,13 @@ def otp_authenticate(otp, mobile_no, is_cms=False):
                     user.mobile_number = mobile_no
                     user.save()
                     token = Token.objects.create(user=user)
-                    MemeberShip.objects.create(account=user, group=Group.objects.get(group_name=GROUP_USER))
+                    MemberShip.objects.create(account=user, group=Group.objects.get(group_name=GROUP_USER))
                     data['response'] = _("response.success")
                     data['token'] = token.key
                 except Token.DoesNotExist:
                     data['response'] = _("response.error")
                     data['error_message'] = _("msg.account.token.expired")
-                except MemeberShip.DoesNotExist:
+                except MemberShip.DoesNotExist:
                     data['response'] = _("response.error")
                     data['error_message'] = "Invalid Access"
                 finally:

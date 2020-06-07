@@ -9,6 +9,8 @@ import logging
 from account.utils import otp_send, otp_authenticate, login_check, logout_check
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.permissions import IsAuthenticated
+
 logger = logging.getLogger(__name__)
 
 
@@ -52,7 +54,7 @@ class OTPAuthenticate(APIView):
 class Login(APIView):
 
     # authentication_classes = []
-    permission_classes = [IsUser, IsStaff, IsManager, IsAdministrator]
+    permission_classes = [IsUser | IsStaff | IsManager | IsAdministrator]
 
     @swagger_auto_schema(request_body=AccountSerializer)
     def post(self, request):
@@ -68,7 +70,7 @@ class Login(APIView):
 class Logout(APIView):
 
     # authentication_classes = []
-    permission_classes = [IsUser, IsStaff, IsManager, IsAdministrator]
+    permission_classes = [IsUser | IsStaff | IsManager | IsAdministrator]
 
     def post(self, request):
         data = logout_check(request)

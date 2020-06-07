@@ -1,5 +1,5 @@
 import pytest
-from account.models import Token
+from account.models import Token, Group
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -18,6 +18,7 @@ def test_login_view_shouldLogInAuthorizedUser(auth_api_client):
 @pytest.mark.django_db
 def test_unauthorized_request(api_client):
     url = reverse('account:login')
+    # Group.objects.create(group_name="User")
     response = api_client.get(url)
     assert response.status_code == 401
 

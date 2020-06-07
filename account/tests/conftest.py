@@ -1,11 +1,10 @@
 import pytest
-from account.models import Token, Account
+from account.models import Token, Account, Group, MemberShip
 
 
 @pytest.fixture
 def test_mobile_num():
     return 'strong-test-pass'
-
 
 
 @pytest.fixture
@@ -18,9 +17,12 @@ def create_user(db, test_mobile_num):
         if 'last_name' not in kwargs:
             kwargs['last_name'] = 'Doe'
         account, s = Account.objects.get_or_create(**kwargs)
+        group, g = Group.objects.get_or_create(group_name="User")
+        MemberShip.objects.create(account=account, group=group)
         return account
 
     return make_user
+
 
 @pytest.fixture
 def create_token(db, create_user):

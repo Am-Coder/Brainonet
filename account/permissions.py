@@ -1,13 +1,17 @@
 from rest_framework import permissions
-from account.models import Group, MemeberShip
+from account.models import Group, MemberShip
+from django.contrib.auth.models import AnonymousUser
 
+
+# from rest_framework
 
 # 1 User
 class IsUser(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if request.user and MemeberShip.objects.filter(group=Group.objects.get(group_name="User"),
-                                                       account=request.user):
+        if request.user and not request.user.is_anonymous and \
+                MemberShip.objects.filter(group=Group.objects.get(group_name="User"),
+                                          account=request.user):
             return True
         return False
 
@@ -16,8 +20,9 @@ class IsUser(permissions.BasePermission):
 class IsStaff(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if request.user and MemeberShip.objects.filter(group=Group.objects.get(group_name="Staff"),
-                                                       account=request.user):
+        if request.user and not request.user.is_anonymous and \
+                MemberShip.objects.filter(group=Group.objects.get(group_name="Staff"),
+                                          account=request.user):
             return True
         return False
 
@@ -26,8 +31,9 @@ class IsStaff(permissions.BasePermission):
 class IsManager(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if request.user and MemeberShip.objects.filter(group=Group.objects.get(group_name="Manager"),
-                                                       account=request.user):
+        if request.user and not request.user.is_anonymous and \
+                MemberShip.objects.filter(group=Group.objects.get(group_name="Manager"),
+                                          account=request.user):
             return True
         return False
 
@@ -36,7 +42,8 @@ class IsManager(permissions.BasePermission):
 class IsAdministrator(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if request.user and MemeberShip.objects.filter(group=Group.objects.get(group_name="Administrator"),
-                                                       account=request.user):
+        if request.user and not request.user.is_anonymous and \
+                MemberShip.objects.filter(group=Group.objects.get(group_name="Administrator"),
+                                          account=request.user):
             return True
         return False

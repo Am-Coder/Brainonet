@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from account.models import Account, Authi, Token, Group, MemeberShip
+from account.models import Account, Authi, Token, Group, MemberShip
 
 
 class AccountAdmin(UserAdmin):
@@ -20,4 +20,4 @@ admin.site.register(Account, AccountAdmin)
 admin.site.register(Authi)
 admin.site.register(Token)
 admin.site.register(Group)
-admin.site.register(MemeberShip)
+admin.site.register(MemberShip)

@@ -1,7 +1,8 @@
 import pytest
-from account.utils import *
+from account.utils import otp_authenticate
 import pyotp
 from django.utils.translation import ugettext_lazy as _
+from account.models import Authi, Account, Group
 
 
 @pytest.mark.django_db
@@ -26,8 +27,9 @@ def test_otp_authenticate_shouldAuthenticateUserCorrectly():
     temporary_auth.mobile_number = num
     temporary_auth.otp = secretKey
     temporary_auth.save()
-
+    Group.objects.create(group_name="User")
     data = otp_authenticate(otp, num)
+    print(data)
     assert data['response'] == _("response.success")
     assert not Authi.objects.filter(mobile_number=num)
 

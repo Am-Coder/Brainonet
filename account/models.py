@@ -67,7 +67,7 @@ class Group(models.Model):
     group_name = models.CharField(max_length=20, unique=True)
 
 
-class MemeberShip(models.Model):
+class MemberShip(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     date_joined = models.DateTimeField(verbose_name="date joined", auto_now_add=True)
