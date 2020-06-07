@@ -327,6 +327,19 @@ class ApiReferenceListView(ListAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('refers', 'description')
 
+    def get_queryset(self):
+
+        # to return references by blog
+        if 'slug' in self.request.GET:
+            try:
+                slug = self.request.GET['slug']
+                print(slug)
+                return Blog.objects.get(slug=slug).references.all()
+            except Blog.DoesNotExist:
+                return References.objects.none()
+        else:
+            return References.objects.all()
+
 
 class ApiCommentByUserListView(ListAPIView):
     queryset = Comment.objects.all()
@@ -343,7 +356,7 @@ class ApiCommentByUserListView(ListAPIView):
 
 
 class ApiCommentByBlogListView(ListAPIView):
-    queryset = Comment.objects.all()
+    # queryset = Comment.objects.all()
     serializer_class = CommentBlogSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsUser,)
