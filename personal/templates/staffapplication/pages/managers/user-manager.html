@@ -1,24 +1,32 @@
 {% extends "staffapplication/base.html" %}
 {% block panel_block %}
     {% load widget_tweaks %}
-    <div class="col-12 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">Search User</h4>
-            <form class="forms-sample" method="post" enctype="multipart/form-data" action="{% url 'personal:add_blog' %}">
-                {% csrf_token %}
-                {% for field in userForm.visible_fields %}
-                <div class="form-group">
-                    {{ field.label_tag }}
-                    {% render_field field class="form-control" %}
-                </div>
-                {% endfor %}
 
-            </form>
-          </div>
-        </div>
-    </div>
+    {% if messages %}
+        {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}{{ message.tags }}{% endif %}{% endif %}" role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
     <div class="row">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Search User</h4>
+                <form class="forms-sample" method="post" enctype="multipart/form-data" action="{% url 'personal:add_blog' %}">
+                    {% csrf_token %}
+                    {% for field in userForm.visible_fields %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {% render_field field class="form-control" %}
+                    </div>
+                    {% endfor %}
+
+                </form>
+              </div>
+            </div>
+        </div>
+
         <div class="col-lg-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
