@@ -56,6 +56,12 @@ class ImageSearchForm(forms.Form):
     image = forms.ImageField()
 
 
+class StaffCreateForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        exclude = ["is_admin", "is_superuser"]
+
+
 ReferencesModelFormset = modelformset_factory(
     References,
     fields="__all__",

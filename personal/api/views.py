@@ -16,6 +16,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from utilities.imsearch import colordescriptor, searcher, createdataset
 from django.utils.translation import ugettext_lazy as _
+from django.contrib import messages
 from rest_framework.response import Response
 import cv2
 import logging
@@ -52,6 +53,20 @@ def blog_manager_view(request):
     if request.GET.get('back', False):
         context['back'] = True
     return render(request, "staffapplication/pages/managers/blog-manager.html", context)
+
+
+@api_view(["GET"])
+@permission_classes([IsStaff])
+def staff_manager_view(request):
+    context = {}
+    logger.info(request.query_params)
+    logger.info(request.GET)
+    context['response'] = _("response.success")
+    context['staffCreateForm'] = form.StaffCreateForm(initial={'is_staff':True})
+    # for session storage based back button
+    if request.GET.get('back', False):
+        context['back'] = True
+    return render(request, "staffapplication/pages/managers/staff-manager.html", context)
 
 
 @api_view(["GET"])
@@ -115,6 +130,7 @@ class BlogUpdateView(generic.UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         BlogHistory(blogid=self.object.slug, user=self.request.user, job='U').save()
+        messages.add_message(self.request, messages.SUCCESS, "Blog Updated Successfuly")
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
@@ -180,6 +196,7 @@ class CommunityUpdateView(generic.UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         CommunityHistory(communityid=self.object.slug, user=self.request.user, job='U').save()
+        messages.add_message(self.request, messages.SUCCESS, "Community Updated Successfuly")
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
@@ -244,6 +261,7 @@ class ReferenceUpdateView(generic.UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
+        messages.add_message(self.request, messages.SUCCESS, "Reference Updated Successfuly")
         ReferenceHistory(referenceid=self.object.pk, user=self.request.user, job='U').save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -329,6 +347,7 @@ def uploadblog(request):
     if blog_form.is_valid():
         blog = blog_form.save()
         BlogHistory(blogid=blog.slug, user=request.user, job="C").save()
+        messages.add_message(request, messages.SUCCESS, "Blog Added Successfuly")
         return redirect(reverse("personal:blog_manager"))
     print(blog_form.errors)
     return HttpResponse(_("msg.upload.error"))
@@ -342,6 +361,7 @@ def uploadreferences(request):
         reference = reference_form.save()
         # reference = References.objects.get_or_create(**reference_form.cleaned_data)
         ReferenceHistory(referenceid=reference.pk, user=request.user, job="C").save()
+        messages.add_message(request, messages.SUCCESS, "References Added Successfuly")
         return redirect(reverse("personal:reference_manager"))
     logger.error(reference_form.errors)
     return HttpResponse(_("msg.upload.error"))
@@ -354,7 +374,20 @@ def uploadcommunity(request):
     if community_form.is_valid():
         community = community_form.save()
         CommunityHistory(communityid=community.slug, user=request.user, job="C").save()
+        messages.add_message(request, messages.SUCCESS, "Community Added Successfuly")
         return redirect(reverse("personal:community_manager"))
+    return HttpResponse(_("msg.upload.error"))
+
+
+@api_view(['POST'])
+@permission_classes([IsStaff])
+def addstaff(request):
+    user_create_form = form.StaffCreateForm(request.POST, request.FILES)
+    if user_create_form.is_valid():
+        user_create_form.save()
+        messages.add_message(request, messages.SUCCESS, "Staff Added Successfuly")
+        # CommunityHistory(communityid=community.slug, user=request.user, job="C").save()
+        return redirect(reverse("personal:staff_manager"))
     return HttpResponse(_("msg.upload.error"))
 
 

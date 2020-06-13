@@ -1,0 +1,50 @@
+{% extends "staffapplication/base.html" %}
+{% block panel_block %}
+    {% load widget_tweaks %}
+
+    {% if messages %}
+        {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}{{ message.tags }}{% endif %}{% endif %}" role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <div class="btn-group-sm">
+                    <button class="btn btn-light mr-2" id="add">Add</button>
+                    <button class="btn btn-light mr-2" id="update">Update</button>
+                    <button class="btn btn-light mr-2" id="remove">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add-user">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Staff</h4>
+                <p class="card-description"> Add </p>
+                <form class="forms-sample" method="post" enctype="multipart/form-data" action="{% url 'personal:add_staff' %}">
+                    {% csrf_token %}
+                    {% for field in staffCreateForm.visible_fields %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {% render_field field class="form-control" %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-gradient-primary mr-2">Submit</button>
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block footer %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+
+    {{ userForm.media }}
+{% endblock %}

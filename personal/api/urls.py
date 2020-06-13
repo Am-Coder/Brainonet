@@ -42,6 +42,8 @@ urlpatterns = [
     re_path(r"^staffhome/imagefakesearch$", fakenews_image_search, name="fake_image_search"),
     re_path(r"^staffhome/imagedataset$", fakenews_image_dataset, name="fake_image_dataset"),
 
+    re_path(r"^staffhome/staff-manager/$", staff_manager_view, name="staff_manager"),
+    re_path(r"^staffhome/addstaff/$", addstaff, name="add_staff"),
 
     # CORS not working, this is a hack so that cookie is passed to same domain for ajax
     re_path(r"^staffhome/blog-list$", ApiBlogListView.as_view(), name="blog-list"),

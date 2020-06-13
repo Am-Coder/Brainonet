@@ -198,27 +198,38 @@
                 </ul>
               </div>
             </li>
+            {% if user.is_admin %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'personal:show_account' %}">
+              <a class="nav-link" data-toggle="collapse" href="#ui-basica" aria-expanded="false" aria-controls="ui-basic">
                 <span class="menu-title">Users</span>
+                <i class="menu-arrow"></i>
                 <i class="mdi mdi-contacts menu-icon"></i>
               </a>
+              <div class="collapse" id="ui-basica">
+                <ul class="nav flex-column sub-menu">
+                  <li class="nav-item"> <a class="nav-link" href="{% url 'personal:show_account' %}">Search</a></li>
+                  <li class="nav-item"> <a class="nav-link" href="{% url 'personal:staff_manager' %}">Add/Remove Staff</a></li>
+                </ul>
+              </div>
             </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="pages/forms/basic_elements.html">
                 <span class="menu-title">Forms</span>
                 <i class="mdi mdi-format-list-bulleted menu-icon"></i>
               </a>
             </li>
+            {% if user.is_admin %}
             <li class="nav-item">
               <a class="nav-link" href="pages/charts/chartjs.html">
-                <span class="menu-title">Charts</span>
+                <span class="menu-title">Stats</span>
                 <i class="mdi mdi-chart-bar menu-icon"></i>
               </a>
             </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="pages/tables/basic-table.html">
-                <span class="menu-title">Tables</span>
+                <span class="menu-title">Calendar</span>
                 <i class="mdi mdi-table-large menu-icon"></i>
               </a>
             </li>
