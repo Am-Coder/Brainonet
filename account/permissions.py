@@ -21,8 +21,11 @@ class IsStaff(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.user and not request.user.is_anonymous and \
-                MemberShip.objects.filter(group=Group.objects.get(group_name="Staff"),
-                                          account=request.user):
+                (MemberShip.objects.filter(group=Group.objects.get(group_name="Staff"),
+                                           account=request.user) or MemberShip.objects.filter(
+                    group=Group.objects.get(group_name="Administrator"),
+                    account=request.user) or MemberShip.objects.filter(group=Group.objects.get(group_name="Manager"),
+                                                                       account=request.user)):
             return True
         return False
 
@@ -32,8 +35,10 @@ class IsManager(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.user and not request.user.is_anonymous and \
-                MemberShip.objects.filter(group=Group.objects.get(group_name="Manager"),
-                                          account=request.user):
+                (MemberShip.objects.filter(group=Group.objects.get(group_name="Manager"),
+                                           account=request.user) or MemberShip.objects.filter(
+                    group=Group.objects.get(group_name="Administrator"),
+                    account=request.user)):
             return True
         return False
 
