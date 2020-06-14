@@ -4,6 +4,7 @@ from blog.models import Blog, References, BlogHistory, ReferenceHistory
 from communities.models import Communities, CommunityHistory
 from account.models import TokenAuthentication
 from .form import BlogForm, CommunityForm, ReferencesForm
+from .filters import StaffSearchFilter
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect, render
 from django.shortcuts import Http404, HttpResponse
@@ -22,6 +23,10 @@ import cv2
 import logging
 from personal.utils import get_token_from_cookie, get_opencv_img_from_buffer, get_image_search_results
 from account.permissions import IsStaff, IsManager, IsAdministrator
+from rest_framework.generics import ListAPIView
+from .serializers import StaffDisplaySerializer
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +67,9 @@ def staff_manager_view(request):
     logger.info(request.query_params)
     logger.info(request.GET)
     context['response'] = _("response.success")
-    context['staffCreateForm'] = form.StaffCreateForm(initial={'is_staff':True})
+    context['staffCreateForm'] = form.StaffCreateForm(initial={'is_staff': True})
+    context['staffRemoveForm'] = form.StaffRemoveForm
+
     # for session storage based back button
     if request.GET.get('back', False):
         context['back'] = True
@@ -339,6 +346,72 @@ class UsersAutocomplete(autocomplete.Select2QuerySetView, APIView):
         return qs
 
 
+class StaffAutocompleteMobile(autocomplete.Select2QuerySetView, APIView):
+    permission_classes = [IsStaff]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        # if not self.request.user.is_authenticated():
+        #     return References.objects.none()
+
+        qs = Account.objects.filter(is_staff=True)
+        # first_name = self.forwarded.get('first_name', None)
+        # if first_name:
+        #     qs = qs.filter(first_name__istartswith=first_name)
+        if self.q:
+            qs = qs.filter(mobile_number__istartswith=self.q)
+            # qs = qs.filter(Q(mobile_number__istartswith=self.q) | Q(first_name__istartswith=self.q) | Q(last_name__istartswith=self.q))
+        return qs
+
+    def get_result_value(self, result):
+        return str(result.mobile_number)
+
+    def get_result_label(self, result):
+        return result.mobile_number
+
+
+class StaffAutocompleteFname(autocomplete.Select2QuerySetView, APIView):
+    permission_classes = [IsStaff]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        # if not self.request.user.is_authenticated():
+        #     return References.objects.none()
+
+        qs = Account.objects.filter(is_staff=True)
+        if self.q:
+            qs = qs.filter(first_name__istartswith=self.q)
+            # qs = qs.filter(Q(mobile_number__istartswith=self.q) | Q(first_name__istartswith=self.q) | Q(last_name__istartswith=self.q))
+        return qs
+
+    def get_result_value(self, result):
+        return str(result.first_name)
+
+    def get_result_label(self, result):
+        return result.first_name
+
+
+class StaffAutocompleteLname(autocomplete.Select2QuerySetView, APIView):
+    permission_classes = [IsStaff]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        # if not self.request.user.is_authenticated():
+        #     return References.objects.none()
+
+        qs = Account.objects.filter(is_staff=True)
+        if self.q:
+            qs = qs.filter(last_name__istartswith=self.q)
+            # qs = qs.filter(Q(mobile_number__istartswith=self.q) | Q(first_name__istartswith=self.q) | Q(last_name__istartswith=self.q))
+        return qs
+
+    def get_result_value(self, result):
+        return str(result.last_name)
+
+    def get_result_label(self, result):
+        return result.last_name
+
+
 @api_view(['POST'])
 @permission_classes([IsStaff])
 def uploadblog(request):
@@ -389,6 +462,44 @@ def addstaff(request):
         # CommunityHistory(communityid=community.slug, user=request.user, job="C").save()
         return redirect(reverse("personal:staff_manager"))
     return HttpResponse(_("msg.upload.error"))
+
+
+@api_view(['POST'])
+@permission_classes([IsStaff])
+def staff_delete_view(request, pk):
+    context = {}
+    try:
+        staff = Account.objects.get(pk=pk)
+        staff.delete()
+        context['response'] = _("response.success")
+    except Account.DoesNotExist:
+        context['response'] = _("response.error")
+        context['error_message'] = _("msg.account.not.found")
+    return Response(context)
+
+
+class ApiStaffListView(ListAPIView):
+    permission_classes = [IsStaff]
+    authentication_classes = [TokenAuthentication]
+    queryset = Account.objects.filter(is_staff=True)
+    serializer_class = StaffDisplaySerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['first_name', 'last_name']
+
+    def get_queryset(self):
+
+        qs = Account.objects.filter(is_staff=True)
+        if 'first_name' in self.request.GET:
+            qs = qs.filter(first_name__startswith=self.request.GET['first_name'])
+
+        if 'last_name' in self.request.GET:
+            qs = qs.filter(last_name__startswith=self.request.GET['last_name'])
+
+        if 'mobile_number' in self.request.GET:
+            qs = qs.filter(mobile_number__icontains=self.request.GET['mobile_number'])
+
+        return qs
 
 
 @api_view(['GET'])

@@ -44,6 +44,11 @@ urlpatterns = [
 
     re_path(r"^staffhome/staff-manager/$", staff_manager_view, name="staff_manager"),
     re_path(r"^staffhome/addstaff/$", addstaff, name="add_staff"),
+    re_path(r"^staffhome/staff_autocomplete_mobile/$", StaffAutocompleteMobile.as_view(), name="staff_autocomplete_mobile"),
+    re_path(r"^staffhome/staff_autocomplete_fname/$", StaffAutocompleteFname.as_view(), name="staff_autocomplete_fname"),
+    re_path(r"^staffhome/staff_autocomplete_lname/$", StaffAutocompleteLname.as_view(), name="staff_autocomplete_lname"),
+    re_path(r"^staffhome/staff-remove/(?P<pk>[\w-]+)$", staff_delete_view, name="staff_remove"),
+    re_path(r"^staffhome/staff-list/$", ApiStaffListView.as_view(), name="staff-list"),
 
     # CORS not working, this is a hack so that cookie is passed to same domain for ajax
     re_path(r"^staffhome/blog-list$", ApiBlogListView.as_view(), name="blog-list"),

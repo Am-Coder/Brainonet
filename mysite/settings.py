@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'groupchat',
     'widget_tweaks',
     'drf_yasg',
+    'django_filters',
 
     # 'account.models.'
     # 'autocomplete_light',

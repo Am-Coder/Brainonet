@@ -1,6 +1,7 @@
 {% extends "staffapplication/base.html" %}
 {% block panel_block %}
     {% load widget_tweaks %}
+    {{ staffRemoveForm.form.media }}
 
     {% if messages %}
         {% for message in messages %}
@@ -13,13 +14,12 @@
             <div class="card-body">
                 <div class="btn-group-sm">
                     <button class="btn btn-light mr-2" id="add">Add</button>
-                    <button class="btn btn-light mr-2" id="update">Update</button>
                     <button class="btn btn-light mr-2" id="remove">Remove</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="add-user">
+    <div class="add-staff">
         <div class="col-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
@@ -39,12 +39,107 @@
             </div>
         </div>
     </div>
+    <div class="remove-staff" style="display: none">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <form method="get" id="form-remove-staff">
+                    <div class="well">
+                      <h4 style="margin-top: 0">Filter</h4>
+                      <div class="row">
+                        {% for field in staffRemoveForm.visible_fields %}
+                            <div class="form-group col-sm-4 col-md-3">
+                                {{ field.label_tag }}
+                                {% render_field field class="form-control" %}
+                            </div>
+                        {% endfor %}
+                      </div>
+                      <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search"></span> Search
+                      </button>
+                    </div>
+                </form>
 
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>Mobile Number</th>
+                        <th>Date joined</th>
+                        <th>Remove</th>
+                      </tr>
+                    </thead>
+                    <tbody id="staff-table">
+
+                    </tbody>
+                  </table>
+
+              </div>
+            </div>
+        </div>
+
+    </div>
 {% endblock %}
 
 {% block footer %}
     {% load static %}
     <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+    {{ staffRemoveForm.media }}
 
-    {{ userForm.media }}
+{% endblock %}
+{% block custom_scripts %}
+    <script>
+        $(() => {
+
+            $("#add").on('click', () => {
+                 $(".add-staff").show();
+                 $(".remove-staff").hide();
+            });
+            $("#remove").click(() => {
+                 $(".add-staff").hide();
+                 $(".remove-staff").show();
+            });
+
+            $("#form-remove-staff").submit((event) => {
+                event.preventDefault();
+                page = 1;
+                let search_url = "{% url 'personal:staff-list' %}?page="+page+"&"+$("#form-remove-staff").serialize();
+                $.get(search_url, (data) =>{
+                    $("#staff-table").empty();
+
+                   for( var i in data.results ){
+                    let row = document.createElement("tr");
+                    let staff = data.results[i];
+                    let delete_url = "{% url 'personal:staff_remove' 1 %}";
+                    delete_url = delete_url.replace('1', staff.pk);
+                    row.innerHTML = "<td>"+ staff.first_name + "</td>" +
+                        "<td>" + staff.last_name + "</td>" +
+                        "<td>" + staff.mobile_number + "</td>"+
+                        "<td>" + staff.date_joined + "</td>"+
+                        "<td><a class='btn btn-light remove-staff-button' href="+ delete_url +">Remove</a></td>";
+                    $("#staff-table").append(row);
+                   }
+                   $(".remove-staff-button").unbind("click");
+                   $(".remove-staff-button").click((e) => {
+                       e.preventDefault();
+                       let url = $(e.target).attr("href");
+                       if (confirm("Sure You Want To Delete!")) {
+                           $.post(url,(data) => {
+                                if( data['response'] === "success" ){
+                                    alert("Successfully Removed Staff");
+                                    $("#form-remove-staff").submit();
+                                }else{
+                                    alert("We are facing some issues. Try again later");
+                                }
+                           })
+                       }
+
+                    })
+               })
+
+            })
+        });
+    </script>
+
 {% endblock %}
