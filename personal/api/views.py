@@ -415,14 +415,12 @@ class StaffAutocompleteLname(autocomplete.Select2QuerySetView, APIView):
 @api_view(['POST'])
 @permission_classes([IsStaff])
 def uploadblog(request):
-    print(request.FILES)
     blog_form = BlogForm(request.POST, request.FILES)
     if blog_form.is_valid():
         blog = blog_form.save()
         BlogHistory(blogid=blog.slug, user=request.user, job="C").save()
         messages.add_message(request, messages.SUCCESS, "Blog Added Successfuly")
         return redirect(reverse("personal:blog_manager"))
-    print(blog_form.errors)
     return HttpResponse(_("msg.upload.error"))
 
 

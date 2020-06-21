@@ -5,9 +5,12 @@ from django.forms import modelformset_factory
 from dal import autocomplete
 from account.models import Account
 from django import forms
-
-
+from blog.validators import image_validator
 # from django_select2.forms import ModelSelect2MultipleWidget
+
+IMAGE_SIZE_MAX_BYTES = 1024 * 1024 * 3
+MIN_TITLE_LENGTH = 5
+MIN_BODY_LENGTH = 50
 
 
 class BlogForm(forms.ModelForm):
@@ -21,6 +24,23 @@ class BlogForm(forms.ModelForm):
                                                             }),
         }
 
+    def clean_image(self):
+        image = self.cleaned_data['image']
+        image_validator(image)
+        return image
+
+    def clean_body(self):
+        body = self.cleaned_data['body']
+        if len(body) < MIN_BODY_LENGTH:
+            raise forms.ValidationError("Enter a body longer than " + str(MIN_BODY_LENGTH) + " characters.")
+        return body
+
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) < MIN_TITLE_LENGTH:
+            raise forms.ValidationError("Enter a title longer than " + str(MIN_TITLE_LENGTH) + " characters.")
+        return title
+
 
 class ReferencesForm(forms.ModelForm):
     class Meta:
@@ -32,6 +52,16 @@ class CommunityForm(forms.ModelForm):
     class Meta:
         model = Communities
         fields = ['name', 'description', 'backgroundimage', 'avatarimage']
+
+    def clean_avatarimage(self):
+        image = self.cleaned_data['avatarimage']
+        image_validator(image)
+        return image
+
+    def clean_backgroundimage(self):
+        image = self.cleaned_data['backgroundimage']
+        image_validator(image)
+        return image
 
 
 class UserForm(forms.ModelForm):

@@ -1,6 +1,6 @@
 import cv2
 import os
-from blog.models import Blog, Vote
+from blog.models import Vote
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -8,7 +8,6 @@ def is_image_aspect_ratio_valid(img_url):
     img = cv2.imread(img_url)
     dimensions = tuple(img.shape[1::-1])
     aspect_ratio = dimensions[0] / dimensions[1]
-    print(dimensions)
     if aspect_ratio < 1:
         return False
     return True
