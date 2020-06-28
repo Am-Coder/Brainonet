@@ -72,6 +72,7 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization'
         }
     },
+    'DEFAULT_INFO': 'mysite.urls.api_info',
     'USE_SESSION_AUTH': False,
     'JSON_EDITOR': True,
     'SHOW_REQUEST_HEADERS': True,
