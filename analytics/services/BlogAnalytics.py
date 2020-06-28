@@ -1,5 +1,4 @@
 from analytics.models import BlogCommentCountStats
-import datetime
 
 
 class BlogAnalyticsService:

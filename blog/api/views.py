@@ -16,6 +16,7 @@ import logging
 from blog.utils import vote_handler
 from drf_yasg.utils import swagger_auto_schema
 from analytics.services.BlogAnalytics import BlogAnalyticsService
+from analytics.services.UserAnalytics import UserAnalyticsService
 import json
 from django.db import IntegrityError
 
@@ -314,13 +315,18 @@ def api_get_blog_parameters(request, slug):
 
 
 class ApiBlogListView(ListAPIView):
-    queryset = Blog.objects.all()
+    # queryset = Blog.objects.all()
     serializer_class = BlogSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsUser,)
     pagination_class = PageNumberPagination
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['title', 'description', 'community__name']
+
+    def get_queryset(self):
+        uas = UserAnalyticsService()
+        uas.updateSiteVisitStats()
+        return Blog.objects.all()
 
 
 class ApiReferenceListView(ListAPIView):
