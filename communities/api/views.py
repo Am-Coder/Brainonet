@@ -12,7 +12,8 @@ import logging
 from communities.utils import check_subscribers
 from drf_yasg.utils import swagger_auto_schema
 from account.permissions import IsUser
-
+from analytics.services.CommunityAnalytics import CommunityAnalyticsService
+import datetime
 logger = logging.getLogger(__name__)
 
 
@@ -118,12 +119,15 @@ def api_community_subscribe_view(request, slug):
     try:
         community = Communities.objects.get(slug=slug)
         user = request.user
+        cas = CommunityAnalyticsService()
         if CommunitySubscribers.objects.filter(user=user, community=community):
             CommunitySubscribers.objects.filter(user=user, community=community).delete()
             community.subscriber_count -= 1
+            cas.updateSubscriberStats(community=community, rise=False)
         else:
             CommunitySubscribers(user=user, community=community).save()
             community.subscriber_count += 1
+            cas.updateSubscriberStats(community=community, rise=True)
         community.save()
         data['response'] = _("response.success")
         return Response(data=data)

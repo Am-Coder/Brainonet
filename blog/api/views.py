@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 import logging
 from blog.utils import vote_handler
 from drf_yasg.utils import swagger_auto_schema
+from analytics.services.BlogAnalytics import BlogAnalyticsService
 import json
 from django.db import IntegrityError
 
@@ -125,7 +126,8 @@ def add_comment(request, slug):
             user = request.user
             data['response'] = _("response.success")
             serializer.save(user=user, blog=blog, me="ME")
-
+            bas = BlogAnalyticsService()
+            bas.updateBlogCommentsStats(blog=blog, community=blog.community, add=True)
         except Blog.DoesNotExist:
             data['response'] = _("response.error")
             data['error_messgage'] = _("msg.blog.not.found")
@@ -146,7 +148,10 @@ def delete_comment(request, slug, commentid):
     data = {}
     try:
         blog = Blog.objects.get(slug=slug)
-        Comment.objects.filter(pk=commentid, blog=blog).delete()
+        if Comment.objects.filter(pk=commentid, blog=blog):
+            Comment.objects.filter(pk=commentid, blog=blog).delete()
+            bas = BlogAnalyticsService()
+            bas.updateBlogCommentsStats(blog=blog, community=blog.community, add=False)
         data['response'] = _("response.success")
     except Blog.DoesNotExist:
         data['response'] = _("response.error")

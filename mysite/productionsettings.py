@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'fakecheck',
     'personal',
     'account',
+    'analytics',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
