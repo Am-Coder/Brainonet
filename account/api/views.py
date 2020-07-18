@@ -2,14 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from account.models import Authi
 import json
-from account.api.serializers import AccountSerializer, AuthiSerializer
+from account.api.serializers import AccountSerializer, AuthiSerializer, AccountPropertiesSerializer
 from account.permissions import IsUser, IsStaff, IsManager, IsAdministrator
 from django.utils.translation import ugettext_lazy as _
 import logging
 from account.utils import otp_send, otp_authenticate, login_check, logout_check
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from account.models import Account
 
 logger = logging.getLogger(__name__)
 
@@ -76,3 +77,51 @@ class Logout(APIView):
         data = logout_check(request)
         return Response(data)
 
+
+@api_view(['GET'])
+@permission_classes([IsUser])
+def get_account_properties(request):
+    data = {}
+    try:
+        user = request.user
+        data['response'] = _("response.success")
+        data['pk'] = user.pk
+        data['mobile_number'] = user.mobile_number
+        data['first_name'] = user.first_name
+        data['last_name'] = user.last_name
+        data['description'] = user.description
+        data['karma'] = user.karma
+        if user.profile_image:
+            data['profile_image'] = user.profile_image.url
+    except Account.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_message'] = _("msg.account.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsUser])
+def update_account_properties(request):
+    data = {}
+    try:
+        info = AccountPropertiesSerializer(data=request.data, fields=('first_name', 'last_name', 'description'))
+        if info.is_valid(raise_exception=True):
+            info = info.data
+        user = request.user
+        user.first_name = info.get('first_name')
+        user.last_name = info.get('last_name')
+        user.description = info.get('description')
+        user.save()
+        data['response'] = _("response.success")
+    except Account.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_message'] = _("msg.account.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)

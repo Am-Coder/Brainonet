@@ -1,7 +1,6 @@
 from django.urls import re_path
-from .views import *
+from .views import get_account_properties, OTPGenerator, OTPAuthenticate, Login, Logout, update_account_properties
 
-from rest_framework.authtoken.views import obtain_auth_token
 
 app_name = 'account'
 
@@ -10,21 +9,6 @@ urlpatterns = [
     re_path(r'^authOTP/$', OTPAuthenticate.as_view(), name='auth_otp'),
     re_path(r'^login/$', Login.as_view(), name='login'),
     re_path(r'^logout/$', Logout.as_view(), name='logout'),
-
+    re_path(r'^accountProperties/$', get_account_properties, name='account_properties'),
+    re_path(r'^updateAccountProperties/$', update_account_properties, name='update_account_properties'),
 ]
-
-
-
-
-
-
-
-
-
-# urlpatterns = [
-#   path('check_if_account_exists', does_account_exist_view, name="check_if_account_exists"),
-#   path('properties', account_properties_view, name="properties"),
-#   path('properties/update', update_account_view, name="update"),
-#   path('login', ObtainAuthTokenView.as_view(), name='login'),
-#   path('register', registration_view, name="register"),
-# ]

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from commons.api.serializers import DynamicFieldsModelSerializer
 from account.models import Account, Authi
 
 
@@ -53,7 +53,22 @@ class AuthiSerializer(serializers.ModelSerializer):
         temporary_auth.save()
 
 
-# class AccountPropertiesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Account
-#         fields = ['pk', 'email', 'username']
+class AccountPropertiesSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['first_name', 'last_name', 'description', 'karma']
+
+    def validate_first_name(self, first_name):
+        if len(first_name) > 20:
+            raise serializers.ValidationError("Length Cannot be greater then 20")
+        return first_name
+
+    def validate_last_name(self, last_name):
+        if len(last_name) > 20:
+            raise serializers.ValidationError("Length Cannot be greater then 20")
+        return last_name
+
+    def validate_description(self, description):
+        if len(description) > 200:
+            raise serializers.ValidationError("Description Cannot be greater then 200")
+        return description

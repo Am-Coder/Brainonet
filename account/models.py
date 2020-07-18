@@ -6,6 +6,16 @@ from django.dispatch import receiver
 import rest_framework.authtoken.models
 from django.utils.translation import gettext_lazy as _
 import rest_framework.authentication
+import hashlib
+
+
+def upload_location(instance, filename, **kwargs):
+    mobile_hash = hashlib.md5(instance.mobile_number.encode('utf-8')).hexdigest()
+    file_path = 'account/profileimage/{first_name}-{last_name}-{hash}-{filename}'.format(
+        first_name=str(instance.first_name), last_name=str(instance.last_name), hash=str(mobile_hash),
+        filename=filename
+    )
+    return file_path
 
 
 class MyAccountManager(BaseUserManager):
@@ -44,6 +54,9 @@ class Account(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     mobile_number = models.CharField(max_length=20, unique=True)
+    description = models.CharField(max_length=200, default="")
+    karma = models.PositiveIntegerField(default=0)
+    profile_image = models.ImageField(upload_to=upload_location, null=False, blank=True)
 
     USERNAME_FIELD = 'mobile_number'
     # REQUIRED_FIELDS = ['']

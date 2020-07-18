@@ -50,6 +50,7 @@ def otp_authenticate(otp, mobile_no, is_cms=False):
                     data['token'] = token.key
                     data['first_name'] = user.first_name
                     data['last_name'] = user.last_name
+                    data['phoneNumber'] = user.mobile_number
                     if is_cms:
                         # If you are not a user then you can have atmost one role among organization job roles
                         member = MemberShip.objects.exclude(group=Group.objects.get(group_name=GROUP_USER)).get(account=user)
@@ -71,6 +72,9 @@ def otp_authenticate(otp, mobile_no, is_cms=False):
                 except MemberShip.DoesNotExist:
                     data['response'] = _("response.error")
                     data['error_message'] = "Invalid Access"
+                except Exception as e:
+                    data['response'] = _("response.error")
+                    data['error_message'] = str(e)
                 finally:
                     return data
 
@@ -101,6 +105,9 @@ def login_check(request, first_name, last_name):
     except Token.DoesNotExist:
         data['response'] = _("response.error")
         data['error_message'] = _("msg.account.token.expired")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return data
 
@@ -112,8 +119,11 @@ def logout_check(request):
         logout(request)
         data['response'] = _("response.success")
         data['message'] = _("msg.account.logout.success")
-        return data
     except Token.DoesNotExist:
         data['response'] = _("response.error")
         data['error_message'] = _("msg.account.token.expired")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
         return data
