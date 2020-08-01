@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from communities.models import Communities
-
+from communities.models import Communities, CommunitySubscribers
+from blog.models import Blog
+from commons.api.serializers import DynamicFieldsModelSerializer
 import os
 from django.core.files.storage import default_storage, FileSystemStorage
 from django.conf import settings
@@ -12,13 +13,18 @@ MIN_TITLE_LENGTH = 5
 MIN_BODY_LENGTH = 50
 
 
-class CommunitySerializer(serializers.ModelSerializer):
+class CommunitySerializer(DynamicFieldsModelSerializer):
     backgroundimage = serializers.SerializerMethodField('validate_backgroundimage_url')
     avatarimage = serializers.SerializerMethodField('validate_avatarimage_url')
 
+    # Custom Serializer Field
+    join = serializers.SerializerMethodField()
+    posts = serializers.SerializerMethodField()
+
     class Meta:
         model = Communities
-        fields = ['pk', 'name', 'slug', 'description', 'backgroundimage', 'subscriber_count', 'avatarimage', 'date_updated']
+        fields = ['pk', 'name', 'slug', 'description', 'backgroundimage', 'subscriber_count',
+                  'avatarimage', 'date_updated', 'join', 'posts']
 
     def validate_avatarimage_url(self, community):
         avatarimage = community.avatarimage
@@ -33,6 +39,17 @@ class CommunitySerializer(serializers.ModelSerializer):
         if "?" in new_url:
             new_url = backgroundimage.url[:backgroundimage.url.rfind("?")]
         return new_url
+
+    def get_join(self, obj):
+        request = self.context['request']
+        if request:
+            return CommunitySubscribers.objects.filter(community=obj, user=request.user).exists()
+        return False
+
+    def get_posts(self, obj):
+        if Blog.objects.filter(community=obj):
+            return Blog.objects.filter(community=obj).count()
+        return 0
 
 
 class CommunityUpdateSerializer(serializers.ModelSerializer):

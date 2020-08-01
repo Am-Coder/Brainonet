@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from blog.models import Blog, Comment, References, TaggedBlogs
+from blog.models import Blog, Comment, References, TaggedBlogs, Vote
 
 import os
 from django.conf import settings
@@ -16,6 +16,10 @@ MIN_BODY_LENGTH = 50
 class BlogSerializer(serializers.ModelSerializer):
     community = serializers.SerializerMethodField('get_communtiy_name')
     image = serializers.SerializerMethodField('validate_image_url')
+
+    # Custom Fields
+    vote = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
 
     """
     A ModelSerializer that takes an additional `fields` argument that
@@ -38,7 +42,8 @@ class BlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ['pk', 'title', 'description', 'slug', 'body', 'image', 'date_updated', 'vote_count', 'view_count', 'community']
+        fields = ['pk', 'title', 'description', 'slug', 'body', 'image', 'date_updated',
+                  'vote_count', 'view_count', 'community', 'vote', 'comment_count']
 
     def get_communtiy_name(self, blog):
         community = blog.community.name
@@ -50,6 +55,17 @@ class BlogSerializer(serializers.ModelSerializer):
         if "?" in new_url:
             new_url = image.url[:image.url.rfind("?")]
         return new_url
+
+    def get_vote(self, obj):
+        request = self.context['request']
+        if request:
+            return Vote.objects.filter(user=request.user).exists()
+        return False
+
+    def get_comment_count(self, obj):
+        if Comment.objects.filter(blog=obj):
+            return Comment.objects.filter(blog=obj).count()
+        return 0
 
 
 class BlogUpdateSerializer(serializers.ModelSerializer):
@@ -151,6 +167,8 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         fields = ['comment']
 
     def validate_comment(self, comment):
+        if comment is None:
+            raise serializers.ValidationError("Empty Comments not allowed")
         if len(comment) > 250:
             raise serializers.ValidationError("Maximum Comment length exceeded")
         return comment
@@ -168,23 +186,37 @@ class CommentSerializer(serializers.ModelSerializer):
 
     blog = BlogSerializer(fields=('title', 'slug', 'community', 'date_updated'))
 
+    # Custom Serializer Fields
+    community = serializers.SerializerMethodField()
+    community_image = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
-        fields = ['comment', 'timestamp', 'blog']
+        fields = ['pk', 'comment', 'timestamp', 'blog', 'community', 'community_image', 'slug']
 
     def validate_comment(self, comment):
         if len(comment) > 250:
             raise serializers.ValidationError("Maximum Comment length exceeded")
         return comment
 
+    def get_community(self, obj):
+        return obj.blog.community.name
+
+    def get_community_image(self, obj):
+        return obj.blog.community.avatarimage.url
+
+    def get_slug(self, obj):
+        return obj.blog.community.slug
+
 
 class CommentBlogSerializer(serializers.ModelSerializer):
 
-    user = AccountSerializer()
+    user = AccountSerializer(fields=('first_name', 'last_name', 'profile_image', 'pk'))
 
     class Meta:
         model = Comment
-        fields = ['comment', 'timestamp', 'user']
+        fields = ['pk', 'comment', 'timestamp', 'user']
 
 
 class ReferenceSerializer(serializers.ModelSerializer):
@@ -200,7 +232,8 @@ class ReferenceSerializer(serializers.ModelSerializer):
 
 
 class TaggedBlogSerializer(serializers.ModelSerializer):
-    blog = BlogSerializer(fields=('title', 'slug', 'community', 'date_updated'))
+    blog = BlogSerializer(fields=('title', 'slug', 'description', 'community', 'date_updated',
+                                  'image', 'vote_count', 'view_count', 'vote', 'comment_count'))
 
     class Meta:
         model = TaggedBlogs

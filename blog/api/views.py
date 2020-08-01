@@ -17,6 +17,7 @@ from blog.utils import vote_handler
 from drf_yasg.utils import swagger_auto_schema
 from analytics.services.BlogAnalytics import BlogAnalyticsService
 from analytics.services.UserAnalytics import UserAnalyticsService
+from rest_framework.exceptions import ValidationError
 import json
 from django.db import IntegrityError
 
@@ -135,10 +136,14 @@ def add_comment(request, slug):
         except Account.DoesNotExist:
             data['response'] = _("response.error")
             data['error_messgage'] = _("msg.account.not.found")
+        except Exception as e:
+            data['response'] = _("response.error")
+            data['error_message'] = str(e)
         finally:
             return Response(data)
     data['response'] = _("response.error")
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    data['error_message'] = serializer.errors
+    return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -157,7 +162,9 @@ def delete_comment(request, slug, commentid):
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.blog.not.found")
-
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return Response(data)
 
@@ -190,7 +197,65 @@ def toggle_blog_vote(request, slug):
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.blog.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)
 
+
+@api_view(['POST'])
+@permission_classes([IsUser])
+def blog_up_vote(request, slug):
+    data = {}
+    try:
+        blog = Blog.objects.get(slug=slug)
+        count = blog.vote_count
+        all_votes = Vote.objects.filter(blog=blog)
+        data['response'] = _("response.success")
+
+        if not all_votes.filter(user=request.user).exists():
+            Vote.objects.create(user=request.user, blog=blog)
+            count += 1
+
+        data['vote_count'] = count
+        blog.vote_count = count
+        blog.save()
+
+    except Blog.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsUser])
+def blog_down_vote(request, slug):
+    data = {}
+    try:
+        blog = Blog.objects.get(slug=slug)
+        count = blog.vote_count
+        all_votes = Vote.objects.filter(blog=blog)
+        data['response'] = _("response.success")
+
+        if all_votes.filter(user=request.user).exists():
+            all_votes.filter(user=request.user).delete()
+            count -= 1
+
+        data['vote_count'] = count
+        blog.vote_count = count
+        blog.save()
+
+    except Blog.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return Response(data)
 
@@ -209,7 +274,9 @@ def has_voted(request, slug):
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.blog.not.found")
-
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return Response(data)
 
@@ -222,19 +289,27 @@ def api_get_personal_collection(request):
         user = request.user
 
         if TaggedBlogs.objects.filter(user=user).exists():
-            serializer = TaggedBlogSerializer(TaggedBlogs.objects.filter(user=user), many=True)
+            serializer = TaggedBlogSerializer(TaggedBlogs.objects.filter(user=user),
+                                              many=True,
+                                              context={
+                                                  'request': request
+                                              })
             data = serializer.data
-        return Response(data)
+
     except Account.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.account.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
         return Response(data)
 
 
 @api_view(['POST'])
 @permission_classes([IsUser])
 def api_add_personal_collection(request, slug):
-    data ={}
+    data = {}
     try:
         user = request.user
         blog = Blog.objects.get(slug=slug)
@@ -244,7 +319,9 @@ def api_add_personal_collection(request, slug):
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.blog.not.found")
-
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return Response(data)
 
@@ -252,7 +329,7 @@ def api_add_personal_collection(request, slug):
 @api_view(['POST'])
 @permission_classes([IsUser])
 def api_delete_from_personal_collection(request, slug):
-    data ={}
+    data = {}
     try:
         user = request.user
         blog = Blog.objects.get(slug=slug)
@@ -262,7 +339,9 @@ def api_delete_from_personal_collection(request, slug):
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.blog.not.found")
-
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return Response(data)
 
@@ -283,7 +362,9 @@ def api_check_blog_personal_collection(request, slug):
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.blog.not.found")
-
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return Response(data)
 
@@ -309,14 +390,36 @@ def api_get_blog_parameters(request, slug):
     except Blog.DoesNotExist:
         data['response'] = _("response.error")
         data['error_messgage'] = _("msg.blog.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)
 
+
+@api_view(['GET'])
+@permission_classes([IsUser])
+def api_get_blog_body(request, slug):
+    data = {}
+    try:
+        user = request.user
+        blog = Blog.objects.get(slug=slug)
+        data['response'] = _("response.success")
+        data['body'] = blog.body
+        data['blog_pk'] = blog.pk
+    except Blog.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_messgage'] = _("msg.blog.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
     finally:
         return Response(data)
 
 
 class ApiBlogListView(ListAPIView):
     # queryset = Blog.objects.all()
-    serializer_class = BlogSerializer
+    # serializer_class = BlogSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsUser,)
     pagination_class = PageNumberPagination
@@ -327,6 +430,16 @@ class ApiBlogListView(ListAPIView):
         uas = UserAnalyticsService()
         uas.updateSiteVisitStats()
         return Blog.objects.all()
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        kwargs['context'] = self.get_serializer_context()
+        return BlogSerializer(*args, **kwargs, fields=('pk', 'title', 'description', 'slug', 'image', 'date_updated',
+                                                       'vote_count', 'view_count', 'community', 'vote',
+                                                       'comment_count'))
 
 
 class ApiReferenceListView(ListAPIView):
@@ -377,4 +490,6 @@ class ApiCommentByBlogListView(ListAPIView):
 
     def get_queryset(self):
         slug = self.kwargs['slug']
+        if Comment.objects.select_related().filter(blog=Blog.objects.get(slug=slug)).count() == 0:
+            raise ValidationError(detail="Blog does not exist")
         return Comment.objects.select_related().filter(blog=Blog.objects.get(slug=slug))

@@ -3,11 +3,11 @@ from commons.api.serializers import DynamicFieldsModelSerializer
 from account.models import Account, Authi
 
 
-class AccountSerializer(serializers.ModelSerializer):
+class AccountSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'profile_image', 'pk']
 
     def validate_first_name(self, first_name):
         if len(first_name) > 20:
@@ -36,7 +36,7 @@ class AuthiSerializer(serializers.ModelSerializer):
         # fields = ['mobile_number', 'otp']
 
     def validate_otp(self, otp):
-        if len(otp) != 6:
+        if otp is None or len(otp) != 6:
             raise serializers.ValidationError("OTP length should be 6")
         return otp
 

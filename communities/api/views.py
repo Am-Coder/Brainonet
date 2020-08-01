@@ -17,17 +17,17 @@ import datetime
 logger = logging.getLogger(__name__)
 
 
-@api_view(['GET', ])
-@permission_classes((IsUser,))
-def api_detail_community_view(request, slug):
-    try:
-        community = Communities.objects.get(slug=slug)
-    except Communities.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializers = CommunitySerializer(community)
-        return Response(serializers.data)
+# @api_view(['GET', ])
+# @permission_classes((IsUser,))
+# def api_detail_community_view(request, slug):
+#     try:
+#         community = Communities.objects.get(slug=slug)
+#     except Communities.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#
+#     if request.method == 'GET':
+#         serializers = CommunitySerializer(community)
+#         return Response(serializers.data)
 
 
 # Not Used
@@ -130,11 +130,14 @@ def api_community_subscribe_view(request, slug):
             cas.updateSubscriberStats(community=community, rise=True)
         community.save()
         data['response'] = _("response.success")
-        return Response(data=data)
     except Communities.DoesNotExist:
         data['response'] = _("response.error")
         data['error_message'] = _("msg.community.not.found")
-        return Response(data=data)
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)
 
 
 @api_view(['GET'])
@@ -150,11 +153,33 @@ def api_community_check_subscribe_view(request, slug):
         #     data['subscribed'] = True
         #     return Response(data=data)
         # data['subscribed'] = False
-        return Response(data=data)
     except Communities.DoesNotExist:
         data['response'] = _("response.error")
         data['error_message'] = _("msg.community.not.found")
-        return Response(data=data)
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes((IsUser,))
+def api_get_community_profile_parameters(request, slug):
+    data = {}
+    try:
+        community = Communities.objects.get(slug=slug)
+        serializers = CommunitySerializer(community, fields=("description", "avatarimage"))
+        data = serializers.data
+        data['response'] = _("response.success")
+    except Communities.DoesNotExist:
+        data['response'] = _("response.error")
+        data['error_message'] = _("msg.community.not.found")
+    except Exception as e:
+        data['response'] = _("response.error")
+        data['error_message'] = str(e)
+    finally:
+        return Response(data)
 
 
 class ApiCommunityListView(ListAPIView):
@@ -165,3 +190,12 @@ class ApiCommunityListView(ListAPIView):
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('name', 'description')
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        kwargs['context'] = self.get_serializer_context()
+        return CommunitySerializer(*args, **kwargs, fields=('pk', 'name', 'slug', 'backgroundimage',
+                                                            'subscriber_count', 'avatarimage', 'join', 'posts'))

@@ -44,11 +44,13 @@ class OTPAuthenticate(APIView):
         # IsCMS header to detect whether it is app login or CMS login
         is_cms = request.headers.get("IsCMS")
         info = AuthiSerializer(data=request.data)
-        if info.is_valid(raise_exception=True):
+        if info.is_valid():
             info = info.data
-        otp = info.get('otp')
-        mobile_no = info.get('mobile_number')
-        data = otp_authenticate(otp, mobile_no, is_cms)
+            otp = info.get('otp')
+            mobile_no = info.get('mobile_number')
+            data = otp_authenticate(otp, mobile_no, is_cms)
+        else:
+            data = {"response": "Error", "error_message": info.errors}
         return Response(data)
 
 
