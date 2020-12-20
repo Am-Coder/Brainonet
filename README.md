@@ -8,6 +8,8 @@
 - CMS for adding blogs, references and communities.
 - Storing User analytics data.
 - Modular Architecture for managing blogs, communities, groupchats, accounts etc.
+- Rest API tested using PyTest.
+- CI using Travis.
 
 ## Swagger Screenshots
 ![alt text](https://github.com/Am-Coder/Brainonet/blob/master/screenshots/1.png "Swagger API setup")
