@@ -17,7 +17,7 @@ def otp_send(num):
     totp = pyotp.TOTP(secretKey, interval=1000000)
     otp = totp.now()
     message = otp + " is the OTP for brainonet account verification on your mobile number. W4Fc9njfi5C"
-    resp = sendSMS('MYmp17Fn+I0-BmN5VgYIil5zKuGObFiBJC5bjnTLZC', num, 'BRONET', message)
+    resp = sendSMS('', num, '', message)
     resp = json.loads(resp)
     if resp['status'] == "success":
         data['response'] = resp['status']
