@@ -51,7 +51,7 @@ inflect==4.1.0
 inflection==0.4.0
 itypes==1.2.0
 jaraco.itertools==5.0.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 jmespath==0.9.5
 joblib==0.14.1
 kombu==4.6.3
